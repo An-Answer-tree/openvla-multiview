@@ -1,5 +1,7 @@
 imageio[ffmpeg]
-robosuite==1.4.1
+# Installed editable from LIBERO/third_party/robosuite below to keep it in sync
+# with the local LIBERO checkout.
+# robosuite==1.4.1
 bddl
 easydict
 cloudpickle

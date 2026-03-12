@@ -555,3 +555,1516 @@ Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero
 Success: True
 # episodes completed so far: 79
 # successes: 72 (91.1%)
+
+Task: pick up the black bowl next to the ramekin and place it on the plate
+Starting episode 30...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=80--success=True--task=pick_up_the_black_bowl_next_to_the_ramekin_and_pla.mp4
+Success: True
+# episodes completed so far: 80
+# successes: 73 (91.2%)
+
+Task: pick up the black bowl next to the ramekin and place it on the plate
+Starting episode 31...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=81--success=True--task=pick_up_the_black_bowl_next_to_the_ramekin_and_pla.mp4
+Success: True
+# episodes completed so far: 81
+# successes: 74 (91.4%)
+
+Task: pick up the black bowl next to the ramekin and place it on the plate
+Starting episode 32...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=82--success=True--task=pick_up_the_black_bowl_next_to_the_ramekin_and_pla.mp4
+Success: True
+# episodes completed so far: 82
+# successes: 75 (91.5%)
+
+Task: pick up the black bowl next to the ramekin and place it on the plate
+Starting episode 33...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=83--success=True--task=pick_up_the_black_bowl_next_to_the_ramekin_and_pla.mp4
+Success: True
+# episodes completed so far: 83
+# successes: 76 (91.6%)
+
+Task: pick up the black bowl next to the ramekin and place it on the plate
+Starting episode 34...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=84--success=True--task=pick_up_the_black_bowl_next_to_the_ramekin_and_pla.mp4
+Success: True
+# episodes completed so far: 84
+# successes: 77 (91.7%)
+
+Task: pick up the black bowl next to the ramekin and place it on the plate
+Starting episode 35...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=85--success=True--task=pick_up_the_black_bowl_next_to_the_ramekin_and_pla.mp4
+Success: True
+# episodes completed so far: 85
+# successes: 78 (91.8%)
+
+Task: pick up the black bowl next to the ramekin and place it on the plate
+Starting episode 36...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=86--success=True--task=pick_up_the_black_bowl_next_to_the_ramekin_and_pla.mp4
+Success: True
+# episodes completed so far: 86
+# successes: 79 (91.9%)
+
+Task: pick up the black bowl next to the ramekin and place it on the plate
+Starting episode 37...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=87--success=True--task=pick_up_the_black_bowl_next_to_the_ramekin_and_pla.mp4
+Success: True
+# episodes completed so far: 87
+# successes: 80 (92.0%)
+
+Task: pick up the black bowl next to the ramekin and place it on the plate
+Starting episode 38...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=88--success=True--task=pick_up_the_black_bowl_next_to_the_ramekin_and_pla.mp4
+Success: True
+# episodes completed so far: 88
+# successes: 81 (92.0%)
+
+Task: pick up the black bowl next to the ramekin and place it on the plate
+Starting episode 39...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=89--success=True--task=pick_up_the_black_bowl_next_to_the_ramekin_and_pla.mp4
+Success: True
+# episodes completed so far: 89
+# successes: 82 (92.1%)
+
+Task: pick up the black bowl next to the ramekin and place it on the plate
+Starting episode 40...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=90--success=False--task=pick_up_the_black_bowl_next_to_the_ramekin_and_pla.mp4
+Success: False
+# episodes completed so far: 90
+# successes: 82 (91.1%)
+
+Task: pick up the black bowl next to the ramekin and place it on the plate
+Starting episode 41...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=91--success=True--task=pick_up_the_black_bowl_next_to_the_ramekin_and_pla.mp4
+Success: True
+# episodes completed so far: 91
+# successes: 83 (91.2%)
+
+Task: pick up the black bowl next to the ramekin and place it on the plate
+Starting episode 42...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=92--success=True--task=pick_up_the_black_bowl_next_to_the_ramekin_and_pla.mp4
+Success: True
+# episodes completed so far: 92
+# successes: 84 (91.3%)
+
+Task: pick up the black bowl next to the ramekin and place it on the plate
+Starting episode 43...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=93--success=True--task=pick_up_the_black_bowl_next_to_the_ramekin_and_pla.mp4
+Success: True
+# episodes completed so far: 93
+# successes: 85 (91.4%)
+
+Task: pick up the black bowl next to the ramekin and place it on the plate
+Starting episode 44...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=94--success=True--task=pick_up_the_black_bowl_next_to_the_ramekin_and_pla.mp4
+Success: True
+# episodes completed so far: 94
+# successes: 86 (91.5%)
+
+Task: pick up the black bowl next to the ramekin and place it on the plate
+Starting episode 45...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=95--success=True--task=pick_up_the_black_bowl_next_to_the_ramekin_and_pla.mp4
+Success: True
+# episodes completed so far: 95
+# successes: 87 (91.6%)
+
+Task: pick up the black bowl next to the ramekin and place it on the plate
+Starting episode 46...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=96--success=True--task=pick_up_the_black_bowl_next_to_the_ramekin_and_pla.mp4
+Success: True
+# episodes completed so far: 96
+# successes: 88 (91.7%)
+
+Task: pick up the black bowl next to the ramekin and place it on the plate
+Starting episode 47...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=97--success=True--task=pick_up_the_black_bowl_next_to_the_ramekin_and_pla.mp4
+Success: True
+# episodes completed so far: 97
+# successes: 89 (91.8%)
+
+Task: pick up the black bowl next to the ramekin and place it on the plate
+Starting episode 48...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=98--success=False--task=pick_up_the_black_bowl_next_to_the_ramekin_and_pla.mp4
+Success: False
+# episodes completed so far: 98
+# successes: 89 (90.8%)
+
+Task: pick up the black bowl next to the ramekin and place it on the plate
+Starting episode 49...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=99--success=True--task=pick_up_the_black_bowl_next_to_the_ramekin_and_pla.mp4
+Success: True
+# episodes completed so far: 99
+# successes: 90 (90.9%)
+
+Task: pick up the black bowl next to the ramekin and place it on the plate
+Starting episode 50...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=100--success=True--task=pick_up_the_black_bowl_next_to_the_ramekin_and_pla.mp4
+Success: True
+# episodes completed so far: 100
+# successes: 91 (91.0%)
+Current task success rate: 0.94
+Current total success rate: 0.91
+
+Task: pick up the black bowl from table center and place it on the plate
+Starting episode 1...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=101--success=True--task=pick_up_the_black_bowl_from_table_center_and_place.mp4
+Success: True
+# episodes completed so far: 101
+# successes: 92 (91.1%)
+
+Task: pick up the black bowl from table center and place it on the plate
+Starting episode 2...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=102--success=False--task=pick_up_the_black_bowl_from_table_center_and_place.mp4
+Success: False
+# episodes completed so far: 102
+# successes: 92 (90.2%)
+
+Task: pick up the black bowl from table center and place it on the plate
+Starting episode 3...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=103--success=True--task=pick_up_the_black_bowl_from_table_center_and_place.mp4
+Success: True
+# episodes completed so far: 103
+# successes: 93 (90.3%)
+
+Task: pick up the black bowl from table center and place it on the plate
+Starting episode 4...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=104--success=True--task=pick_up_the_black_bowl_from_table_center_and_place.mp4
+Success: True
+# episodes completed so far: 104
+# successes: 94 (90.4%)
+
+Task: pick up the black bowl from table center and place it on the plate
+Starting episode 5...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=105--success=True--task=pick_up_the_black_bowl_from_table_center_and_place.mp4
+Success: True
+# episodes completed so far: 105
+# successes: 95 (90.5%)
+
+Task: pick up the black bowl from table center and place it on the plate
+Starting episode 6...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=106--success=True--task=pick_up_the_black_bowl_from_table_center_and_place.mp4
+Success: True
+# episodes completed so far: 106
+# successes: 96 (90.6%)
+
+Task: pick up the black bowl from table center and place it on the plate
+Starting episode 7...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=107--success=True--task=pick_up_the_black_bowl_from_table_center_and_place.mp4
+Success: True
+# episodes completed so far: 107
+# successes: 97 (90.7%)
+
+Task: pick up the black bowl from table center and place it on the plate
+Starting episode 8...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=108--success=True--task=pick_up_the_black_bowl_from_table_center_and_place.mp4
+Success: True
+# episodes completed so far: 108
+# successes: 98 (90.7%)
+
+Task: pick up the black bowl from table center and place it on the plate
+Starting episode 9...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=109--success=True--task=pick_up_the_black_bowl_from_table_center_and_place.mp4
+Success: True
+# episodes completed so far: 109
+# successes: 99 (90.8%)
+
+Task: pick up the black bowl from table center and place it on the plate
+Starting episode 10...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=110--success=True--task=pick_up_the_black_bowl_from_table_center_and_place.mp4
+Success: True
+# episodes completed so far: 110
+# successes: 100 (90.9%)
+
+Task: pick up the black bowl from table center and place it on the plate
+Starting episode 11...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=111--success=True--task=pick_up_the_black_bowl_from_table_center_and_place.mp4
+Success: True
+# episodes completed so far: 111
+# successes: 101 (91.0%)
+
+Task: pick up the black bowl from table center and place it on the plate
+Starting episode 12...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=112--success=False--task=pick_up_the_black_bowl_from_table_center_and_place.mp4
+Success: False
+# episodes completed so far: 112
+# successes: 101 (90.2%)
+
+Task: pick up the black bowl from table center and place it on the plate
+Starting episode 13...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=113--success=True--task=pick_up_the_black_bowl_from_table_center_and_place.mp4
+Success: True
+# episodes completed so far: 113
+# successes: 102 (90.3%)
+
+Task: pick up the black bowl from table center and place it on the plate
+Starting episode 14...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=114--success=True--task=pick_up_the_black_bowl_from_table_center_and_place.mp4
+Success: True
+# episodes completed so far: 114
+# successes: 103 (90.4%)
+
+Task: pick up the black bowl from table center and place it on the plate
+Starting episode 15...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=115--success=True--task=pick_up_the_black_bowl_from_table_center_and_place.mp4
+Success: True
+# episodes completed so far: 115
+# successes: 104 (90.4%)
+
+Task: pick up the black bowl from table center and place it on the plate
+Starting episode 16...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=116--success=True--task=pick_up_the_black_bowl_from_table_center_and_place.mp4
+Success: True
+# episodes completed so far: 116
+# successes: 105 (90.5%)
+
+Task: pick up the black bowl from table center and place it on the plate
+Starting episode 17...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=117--success=True--task=pick_up_the_black_bowl_from_table_center_and_place.mp4
+Success: True
+# episodes completed so far: 117
+# successes: 106 (90.6%)
+
+Task: pick up the black bowl from table center and place it on the plate
+Starting episode 18...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=118--success=True--task=pick_up_the_black_bowl_from_table_center_and_place.mp4
+Success: True
+# episodes completed so far: 118
+# successes: 107 (90.7%)
+
+Task: pick up the black bowl from table center and place it on the plate
+Starting episode 19...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=119--success=True--task=pick_up_the_black_bowl_from_table_center_and_place.mp4
+Success: True
+# episodes completed so far: 119
+# successes: 108 (90.8%)
+
+Task: pick up the black bowl from table center and place it on the plate
+Starting episode 20...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=120--success=False--task=pick_up_the_black_bowl_from_table_center_and_place.mp4
+Success: False
+# episodes completed so far: 120
+# successes: 108 (90.0%)
+
+Task: pick up the black bowl from table center and place it on the plate
+Starting episode 21...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=121--success=False--task=pick_up_the_black_bowl_from_table_center_and_place.mp4
+Success: False
+# episodes completed so far: 121
+# successes: 108 (89.3%)
+
+Task: pick up the black bowl from table center and place it on the plate
+Starting episode 22...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=122--success=True--task=pick_up_the_black_bowl_from_table_center_and_place.mp4
+Success: True
+# episodes completed so far: 122
+# successes: 109 (89.3%)
+
+Task: pick up the black bowl from table center and place it on the plate
+Starting episode 23...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=123--success=True--task=pick_up_the_black_bowl_from_table_center_and_place.mp4
+Success: True
+# episodes completed so far: 123
+# successes: 110 (89.4%)
+
+Task: pick up the black bowl from table center and place it on the plate
+Starting episode 24...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=124--success=True--task=pick_up_the_black_bowl_from_table_center_and_place.mp4
+Success: True
+# episodes completed so far: 124
+# successes: 111 (89.5%)
+
+Task: pick up the black bowl from table center and place it on the plate
+Starting episode 25...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=125--success=False--task=pick_up_the_black_bowl_from_table_center_and_place.mp4
+Success: False
+# episodes completed so far: 125
+# successes: 111 (88.8%)
+
+Task: pick up the black bowl from table center and place it on the plate
+Starting episode 26...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=126--success=False--task=pick_up_the_black_bowl_from_table_center_and_place.mp4
+Success: False
+# episodes completed so far: 126
+# successes: 111 (88.1%)
+
+Task: pick up the black bowl from table center and place it on the plate
+Starting episode 27...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=127--success=True--task=pick_up_the_black_bowl_from_table_center_and_place.mp4
+Success: True
+# episodes completed so far: 127
+# successes: 112 (88.2%)
+
+Task: pick up the black bowl from table center and place it on the plate
+Starting episode 28...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=128--success=True--task=pick_up_the_black_bowl_from_table_center_and_place.mp4
+Success: True
+# episodes completed so far: 128
+# successes: 113 (88.3%)
+
+Task: pick up the black bowl from table center and place it on the plate
+Starting episode 29...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=129--success=True--task=pick_up_the_black_bowl_from_table_center_and_place.mp4
+Success: True
+# episodes completed so far: 129
+# successes: 114 (88.4%)
+
+Task: pick up the black bowl from table center and place it on the plate
+Starting episode 30...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=130--success=False--task=pick_up_the_black_bowl_from_table_center_and_place.mp4
+Success: False
+# episodes completed so far: 130
+# successes: 114 (87.7%)
+
+Task: pick up the black bowl from table center and place it on the plate
+Starting episode 31...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=131--success=True--task=pick_up_the_black_bowl_from_table_center_and_place.mp4
+Success: True
+# episodes completed so far: 131
+# successes: 115 (87.8%)
+
+Task: pick up the black bowl from table center and place it on the plate
+Starting episode 32...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=132--success=True--task=pick_up_the_black_bowl_from_table_center_and_place.mp4
+Success: True
+# episodes completed so far: 132
+# successes: 116 (87.9%)
+
+Task: pick up the black bowl from table center and place it on the plate
+Starting episode 33...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=133--success=True--task=pick_up_the_black_bowl_from_table_center_and_place.mp4
+Success: True
+# episodes completed so far: 133
+# successes: 117 (88.0%)
+
+Task: pick up the black bowl from table center and place it on the plate
+Starting episode 34...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=134--success=True--task=pick_up_the_black_bowl_from_table_center_and_place.mp4
+Success: True
+# episodes completed so far: 134
+# successes: 118 (88.1%)
+
+Task: pick up the black bowl from table center and place it on the plate
+Starting episode 35...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=135--success=True--task=pick_up_the_black_bowl_from_table_center_and_place.mp4
+Success: True
+# episodes completed so far: 135
+# successes: 119 (88.1%)
+
+Task: pick up the black bowl from table center and place it on the plate
+Starting episode 36...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=136--success=True--task=pick_up_the_black_bowl_from_table_center_and_place.mp4
+Success: True
+# episodes completed so far: 136
+# successes: 120 (88.2%)
+
+Task: pick up the black bowl from table center and place it on the plate
+Starting episode 37...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=137--success=True--task=pick_up_the_black_bowl_from_table_center_and_place.mp4
+Success: True
+# episodes completed so far: 137
+# successes: 121 (88.3%)
+
+Task: pick up the black bowl from table center and place it on the plate
+Starting episode 38...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=138--success=False--task=pick_up_the_black_bowl_from_table_center_and_place.mp4
+Success: False
+# episodes completed so far: 138
+# successes: 121 (87.7%)
+
+Task: pick up the black bowl from table center and place it on the plate
+Starting episode 39...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=139--success=True--task=pick_up_the_black_bowl_from_table_center_and_place.mp4
+Success: True
+# episodes completed so far: 139
+# successes: 122 (87.8%)
+
+Task: pick up the black bowl from table center and place it on the plate
+Starting episode 40...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=140--success=True--task=pick_up_the_black_bowl_from_table_center_and_place.mp4
+Success: True
+# episodes completed so far: 140
+# successes: 123 (87.9%)
+
+Task: pick up the black bowl from table center and place it on the plate
+Starting episode 41...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=141--success=False--task=pick_up_the_black_bowl_from_table_center_and_place.mp4
+Success: False
+# episodes completed so far: 141
+# successes: 123 (87.2%)
+
+Task: pick up the black bowl from table center and place it on the plate
+Starting episode 42...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=142--success=True--task=pick_up_the_black_bowl_from_table_center_and_place.mp4
+Success: True
+# episodes completed so far: 142
+# successes: 124 (87.3%)
+
+Task: pick up the black bowl from table center and place it on the plate
+Starting episode 43...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=143--success=True--task=pick_up_the_black_bowl_from_table_center_and_place.mp4
+Success: True
+# episodes completed so far: 143
+# successes: 125 (87.4%)
+
+Task: pick up the black bowl from table center and place it on the plate
+Starting episode 44...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=144--success=True--task=pick_up_the_black_bowl_from_table_center_and_place.mp4
+Success: True
+# episodes completed so far: 144
+# successes: 126 (87.5%)
+
+Task: pick up the black bowl from table center and place it on the plate
+Starting episode 45...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=145--success=True--task=pick_up_the_black_bowl_from_table_center_and_place.mp4
+Success: True
+# episodes completed so far: 145
+# successes: 127 (87.6%)
+
+Task: pick up the black bowl from table center and place it on the plate
+Starting episode 46...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=146--success=True--task=pick_up_the_black_bowl_from_table_center_and_place.mp4
+Success: True
+# episodes completed so far: 146
+# successes: 128 (87.7%)
+
+Task: pick up the black bowl from table center and place it on the plate
+Starting episode 47...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=147--success=True--task=pick_up_the_black_bowl_from_table_center_and_place.mp4
+Success: True
+# episodes completed so far: 147
+# successes: 129 (87.8%)
+
+Task: pick up the black bowl from table center and place it on the plate
+Starting episode 48...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=148--success=True--task=pick_up_the_black_bowl_from_table_center_and_place.mp4
+Success: True
+# episodes completed so far: 148
+# successes: 130 (87.8%)
+
+Task: pick up the black bowl from table center and place it on the plate
+Starting episode 49...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=149--success=True--task=pick_up_the_black_bowl_from_table_center_and_place.mp4
+Success: True
+# episodes completed so far: 149
+# successes: 131 (87.9%)
+
+Task: pick up the black bowl from table center and place it on the plate
+Starting episode 50...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=150--success=True--task=pick_up_the_black_bowl_from_table_center_and_place.mp4
+Success: True
+# episodes completed so far: 150
+# successes: 132 (88.0%)
+Current task success rate: 0.82
+Current total success rate: 0.88
+
+Task: pick up the black bowl on the cookie box and place it on the plate
+Starting episode 1...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=151--success=True--task=pick_up_the_black_bowl_on_the_cookie_box_and_place.mp4
+Success: True
+# episodes completed so far: 151
+# successes: 133 (88.1%)
+
+Task: pick up the black bowl on the cookie box and place it on the plate
+Starting episode 2...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=152--success=True--task=pick_up_the_black_bowl_on_the_cookie_box_and_place.mp4
+Success: True
+# episodes completed so far: 152
+# successes: 134 (88.2%)
+
+Task: pick up the black bowl on the cookie box and place it on the plate
+Starting episode 3...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=153--success=True--task=pick_up_the_black_bowl_on_the_cookie_box_and_place.mp4
+Success: True
+# episodes completed so far: 153
+# successes: 135 (88.2%)
+
+Task: pick up the black bowl on the cookie box and place it on the plate
+Starting episode 4...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=154--success=True--task=pick_up_the_black_bowl_on_the_cookie_box_and_place.mp4
+Success: True
+# episodes completed so far: 154
+# successes: 136 (88.3%)
+
+Task: pick up the black bowl on the cookie box and place it on the plate
+Starting episode 5...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=155--success=True--task=pick_up_the_black_bowl_on_the_cookie_box_and_place.mp4
+Success: True
+# episodes completed so far: 155
+# successes: 137 (88.4%)
+
+Task: pick up the black bowl on the cookie box and place it on the plate
+Starting episode 6...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=156--success=True--task=pick_up_the_black_bowl_on_the_cookie_box_and_place.mp4
+Success: True
+# episodes completed so far: 156
+# successes: 138 (88.5%)
+
+Task: pick up the black bowl on the cookie box and place it on the plate
+Starting episode 7...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=157--success=True--task=pick_up_the_black_bowl_on_the_cookie_box_and_place.mp4
+Success: True
+# episodes completed so far: 157
+# successes: 139 (88.5%)
+
+Task: pick up the black bowl on the cookie box and place it on the plate
+Starting episode 8...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=158--success=True--task=pick_up_the_black_bowl_on_the_cookie_box_and_place.mp4
+Success: True
+# episodes completed so far: 158
+# successes: 140 (88.6%)
+
+Task: pick up the black bowl on the cookie box and place it on the plate
+Starting episode 9...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=159--success=True--task=pick_up_the_black_bowl_on_the_cookie_box_and_place.mp4
+Success: True
+# episodes completed so far: 159
+# successes: 141 (88.7%)
+
+Task: pick up the black bowl on the cookie box and place it on the plate
+Starting episode 10...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=160--success=True--task=pick_up_the_black_bowl_on_the_cookie_box_and_place.mp4
+Success: True
+# episodes completed so far: 160
+# successes: 142 (88.8%)
+
+Task: pick up the black bowl on the cookie box and place it on the plate
+Starting episode 11...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=161--success=True--task=pick_up_the_black_bowl_on_the_cookie_box_and_place.mp4
+Success: True
+# episodes completed so far: 161
+# successes: 143 (88.8%)
+
+Task: pick up the black bowl on the cookie box and place it on the plate
+Starting episode 12...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=162--success=True--task=pick_up_the_black_bowl_on_the_cookie_box_and_place.mp4
+Success: True
+# episodes completed so far: 162
+# successes: 144 (88.9%)
+
+Task: pick up the black bowl on the cookie box and place it on the plate
+Starting episode 13...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=163--success=True--task=pick_up_the_black_bowl_on_the_cookie_box_and_place.mp4
+Success: True
+# episodes completed so far: 163
+# successes: 145 (89.0%)
+
+Task: pick up the black bowl on the cookie box and place it on the plate
+Starting episode 14...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=164--success=True--task=pick_up_the_black_bowl_on_the_cookie_box_and_place.mp4
+Success: True
+# episodes completed so far: 164
+# successes: 146 (89.0%)
+
+Task: pick up the black bowl on the cookie box and place it on the plate
+Starting episode 15...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=165--success=True--task=pick_up_the_black_bowl_on_the_cookie_box_and_place.mp4
+Success: True
+# episodes completed so far: 165
+# successes: 147 (89.1%)
+
+Task: pick up the black bowl on the cookie box and place it on the plate
+Starting episode 16...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=166--success=True--task=pick_up_the_black_bowl_on_the_cookie_box_and_place.mp4
+Success: True
+# episodes completed so far: 166
+# successes: 148 (89.2%)
+
+Task: pick up the black bowl on the cookie box and place it on the plate
+Starting episode 17...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=167--success=True--task=pick_up_the_black_bowl_on_the_cookie_box_and_place.mp4
+Success: True
+# episodes completed so far: 167
+# successes: 149 (89.2%)
+
+Task: pick up the black bowl on the cookie box and place it on the plate
+Starting episode 18...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=168--success=True--task=pick_up_the_black_bowl_on_the_cookie_box_and_place.mp4
+Success: True
+# episodes completed so far: 168
+# successes: 150 (89.3%)
+
+Task: pick up the black bowl on the cookie box and place it on the plate
+Starting episode 19...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=169--success=True--task=pick_up_the_black_bowl_on_the_cookie_box_and_place.mp4
+Success: True
+# episodes completed so far: 169
+# successes: 151 (89.3%)
+
+Task: pick up the black bowl on the cookie box and place it on the plate
+Starting episode 20...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=170--success=True--task=pick_up_the_black_bowl_on_the_cookie_box_and_place.mp4
+Success: True
+# episodes completed so far: 170
+# successes: 152 (89.4%)
+
+Task: pick up the black bowl on the cookie box and place it on the plate
+Starting episode 21...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=171--success=True--task=pick_up_the_black_bowl_on_the_cookie_box_and_place.mp4
+Success: True
+# episodes completed so far: 171
+# successes: 153 (89.5%)
+
+Task: pick up the black bowl on the cookie box and place it on the plate
+Starting episode 22...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=172--success=True--task=pick_up_the_black_bowl_on_the_cookie_box_and_place.mp4
+Success: True
+# episodes completed so far: 172
+# successes: 154 (89.5%)
+
+Task: pick up the black bowl on the cookie box and place it on the plate
+Starting episode 23...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=173--success=True--task=pick_up_the_black_bowl_on_the_cookie_box_and_place.mp4
+Success: True
+# episodes completed so far: 173
+# successes: 155 (89.6%)
+
+Task: pick up the black bowl on the cookie box and place it on the plate
+Starting episode 24...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=174--success=True--task=pick_up_the_black_bowl_on_the_cookie_box_and_place.mp4
+Success: True
+# episodes completed so far: 174
+# successes: 156 (89.7%)
+
+Task: pick up the black bowl on the cookie box and place it on the plate
+Starting episode 25...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=175--success=True--task=pick_up_the_black_bowl_on_the_cookie_box_and_place.mp4
+Success: True
+# episodes completed so far: 175
+# successes: 157 (89.7%)
+
+Task: pick up the black bowl on the cookie box and place it on the plate
+Starting episode 26...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=176--success=True--task=pick_up_the_black_bowl_on_the_cookie_box_and_place.mp4
+Success: True
+# episodes completed so far: 176
+# successes: 158 (89.8%)
+
+Task: pick up the black bowl on the cookie box and place it on the plate
+Starting episode 27...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=177--success=True--task=pick_up_the_black_bowl_on_the_cookie_box_and_place.mp4
+Success: True
+# episodes completed so far: 177
+# successes: 159 (89.8%)
+
+Task: pick up the black bowl on the cookie box and place it on the plate
+Starting episode 28...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=178--success=False--task=pick_up_the_black_bowl_on_the_cookie_box_and_place.mp4
+Success: False
+# episodes completed so far: 178
+# successes: 159 (89.3%)
+
+Task: pick up the black bowl on the cookie box and place it on the plate
+Starting episode 29...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=179--success=True--task=pick_up_the_black_bowl_on_the_cookie_box_and_place.mp4
+Success: True
+# episodes completed so far: 179
+# successes: 160 (89.4%)
+
+Task: pick up the black bowl on the cookie box and place it on the plate
+Starting episode 30...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=180--success=True--task=pick_up_the_black_bowl_on_the_cookie_box_and_place.mp4
+Success: True
+# episodes completed so far: 180
+# successes: 161 (89.4%)
+
+Task: pick up the black bowl on the cookie box and place it on the plate
+Starting episode 31...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=181--success=True--task=pick_up_the_black_bowl_on_the_cookie_box_and_place.mp4
+Success: True
+# episodes completed so far: 181
+# successes: 162 (89.5%)
+
+Task: pick up the black bowl on the cookie box and place it on the plate
+Starting episode 32...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=182--success=True--task=pick_up_the_black_bowl_on_the_cookie_box_and_place.mp4
+Success: True
+# episodes completed so far: 182
+# successes: 163 (89.6%)
+
+Task: pick up the black bowl on the cookie box and place it on the plate
+Starting episode 33...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=183--success=True--task=pick_up_the_black_bowl_on_the_cookie_box_and_place.mp4
+Success: True
+# episodes completed so far: 183
+# successes: 164 (89.6%)
+
+Task: pick up the black bowl on the cookie box and place it on the plate
+Starting episode 34...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=184--success=False--task=pick_up_the_black_bowl_on_the_cookie_box_and_place.mp4
+Success: False
+# episodes completed so far: 184
+# successes: 164 (89.1%)
+
+Task: pick up the black bowl on the cookie box and place it on the plate
+Starting episode 35...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=185--success=False--task=pick_up_the_black_bowl_on_the_cookie_box_and_place.mp4
+Success: False
+# episodes completed so far: 185
+# successes: 164 (88.6%)
+
+Task: pick up the black bowl on the cookie box and place it on the plate
+Starting episode 36...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=186--success=True--task=pick_up_the_black_bowl_on_the_cookie_box_and_place.mp4
+Success: True
+# episodes completed so far: 186
+# successes: 165 (88.7%)
+
+Task: pick up the black bowl on the cookie box and place it on the plate
+Starting episode 37...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=187--success=True--task=pick_up_the_black_bowl_on_the_cookie_box_and_place.mp4
+Success: True
+# episodes completed so far: 187
+# successes: 166 (88.8%)
+
+Task: pick up the black bowl on the cookie box and place it on the plate
+Starting episode 38...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=188--success=True--task=pick_up_the_black_bowl_on_the_cookie_box_and_place.mp4
+Success: True
+# episodes completed so far: 188
+# successes: 167 (88.8%)
+
+Task: pick up the black bowl on the cookie box and place it on the plate
+Starting episode 39...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=189--success=True--task=pick_up_the_black_bowl_on_the_cookie_box_and_place.mp4
+Success: True
+# episodes completed so far: 189
+# successes: 168 (88.9%)
+
+Task: pick up the black bowl on the cookie box and place it on the plate
+Starting episode 40...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=190--success=True--task=pick_up_the_black_bowl_on_the_cookie_box_and_place.mp4
+Success: True
+# episodes completed so far: 190
+# successes: 169 (88.9%)
+
+Task: pick up the black bowl on the cookie box and place it on the plate
+Starting episode 41...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=191--success=False--task=pick_up_the_black_bowl_on_the_cookie_box_and_place.mp4
+Success: False
+# episodes completed so far: 191
+# successes: 169 (88.5%)
+
+Task: pick up the black bowl on the cookie box and place it on the plate
+Starting episode 42...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=192--success=True--task=pick_up_the_black_bowl_on_the_cookie_box_and_place.mp4
+Success: True
+# episodes completed so far: 192
+# successes: 170 (88.5%)
+
+Task: pick up the black bowl on the cookie box and place it on the plate
+Starting episode 43...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=193--success=True--task=pick_up_the_black_bowl_on_the_cookie_box_and_place.mp4
+Success: True
+# episodes completed so far: 193
+# successes: 171 (88.6%)
+
+Task: pick up the black bowl on the cookie box and place it on the plate
+Starting episode 44...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=194--success=True--task=pick_up_the_black_bowl_on_the_cookie_box_and_place.mp4
+Success: True
+# episodes completed so far: 194
+# successes: 172 (88.7%)
+
+Task: pick up the black bowl on the cookie box and place it on the plate
+Starting episode 45...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=195--success=True--task=pick_up_the_black_bowl_on_the_cookie_box_and_place.mp4
+Success: True
+# episodes completed so far: 195
+# successes: 173 (88.7%)
+
+Task: pick up the black bowl on the cookie box and place it on the plate
+Starting episode 46...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=196--success=True--task=pick_up_the_black_bowl_on_the_cookie_box_and_place.mp4
+Success: True
+# episodes completed so far: 196
+# successes: 174 (88.8%)
+
+Task: pick up the black bowl on the cookie box and place it on the plate
+Starting episode 47...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=197--success=True--task=pick_up_the_black_bowl_on_the_cookie_box_and_place.mp4
+Success: True
+# episodes completed so far: 197
+# successes: 175 (88.8%)
+
+Task: pick up the black bowl on the cookie box and place it on the plate
+Starting episode 48...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=198--success=True--task=pick_up_the_black_bowl_on_the_cookie_box_and_place.mp4
+Success: True
+# episodes completed so far: 198
+# successes: 176 (88.9%)
+
+Task: pick up the black bowl on the cookie box and place it on the plate
+Starting episode 49...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=199--success=True--task=pick_up_the_black_bowl_on_the_cookie_box_and_place.mp4
+Success: True
+# episodes completed so far: 199
+# successes: 177 (88.9%)
+
+Task: pick up the black bowl on the cookie box and place it on the plate
+Starting episode 50...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=200--success=True--task=pick_up_the_black_bowl_on_the_cookie_box_and_place.mp4
+Success: True
+# episodes completed so far: 200
+# successes: 178 (89.0%)
+Current task success rate: 0.92
+Current total success rate: 0.89
+
+Task: pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+Starting episode 1...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_t/2026_03_12-23_46_53--episode=201--success=True--task=pick_up_the_black_bowl_in_the_top_drawer_of_the_wo.mp4
+Success: True
+# episodes completed so far: 201
+# successes: 179 (89.1%)
+
+Task: pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+Starting episode 2...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_t/2026_03_12-23_46_53--episode=202--success=False--task=pick_up_the_black_bowl_in_the_top_drawer_of_the_wo.mp4
+Success: False
+# episodes completed so far: 202
+# successes: 179 (88.6%)
+
+Task: pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+Starting episode 3...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_t/2026_03_12-23_46_53--episode=203--success=True--task=pick_up_the_black_bowl_in_the_top_drawer_of_the_wo.mp4
+Success: True
+# episodes completed so far: 203
+# successes: 180 (88.7%)
+
+Task: pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+Starting episode 4...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_t/2026_03_12-23_46_53--episode=204--success=False--task=pick_up_the_black_bowl_in_the_top_drawer_of_the_wo.mp4
+Success: False
+# episodes completed so far: 204
+# successes: 180 (88.2%)
+
+Task: pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+Starting episode 5...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_t/2026_03_12-23_46_53--episode=205--success=True--task=pick_up_the_black_bowl_in_the_top_drawer_of_the_wo.mp4
+Success: True
+# episodes completed so far: 205
+# successes: 181 (88.3%)
+
+Task: pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+Starting episode 6...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_t/2026_03_12-23_46_53--episode=206--success=False--task=pick_up_the_black_bowl_in_the_top_drawer_of_the_wo.mp4
+Success: False
+# episodes completed so far: 206
+# successes: 181 (87.9%)
+
+Task: pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+Starting episode 7...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_t/2026_03_12-23_46_53--episode=207--success=True--task=pick_up_the_black_bowl_in_the_top_drawer_of_the_wo.mp4
+Success: True
+# episodes completed so far: 207
+# successes: 182 (87.9%)
+
+Task: pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+Starting episode 8...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_t/2026_03_12-23_46_53--episode=208--success=True--task=pick_up_the_black_bowl_in_the_top_drawer_of_the_wo.mp4
+Success: True
+# episodes completed so far: 208
+# successes: 183 (88.0%)
+
+Task: pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+Starting episode 9...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_t/2026_03_12-23_46_53--episode=209--success=True--task=pick_up_the_black_bowl_in_the_top_drawer_of_the_wo.mp4
+Success: True
+# episodes completed so far: 209
+# successes: 184 (88.0%)
+
+Task: pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+Starting episode 10...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_t/2026_03_12-23_46_53--episode=210--success=True--task=pick_up_the_black_bowl_in_the_top_drawer_of_the_wo.mp4
+Success: True
+# episodes completed so far: 210
+# successes: 185 (88.1%)
+
+Task: pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+Starting episode 11...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_t/2026_03_12-23_46_53--episode=211--success=False--task=pick_up_the_black_bowl_in_the_top_drawer_of_the_wo.mp4
+Success: False
+# episodes completed so far: 211
+# successes: 185 (87.7%)
+
+Task: pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+Starting episode 12...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_t/2026_03_12-23_46_53--episode=212--success=True--task=pick_up_the_black_bowl_in_the_top_drawer_of_the_wo.mp4
+Success: True
+# episodes completed so far: 212
+# successes: 186 (87.7%)
+
+Task: pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+Starting episode 13...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_t/2026_03_12-23_46_53--episode=213--success=True--task=pick_up_the_black_bowl_in_the_top_drawer_of_the_wo.mp4
+Success: True
+# episodes completed so far: 213
+# successes: 187 (87.8%)
+
+Task: pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+Starting episode 14...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_t/2026_03_12-23_46_53--episode=214--success=True--task=pick_up_the_black_bowl_in_the_top_drawer_of_the_wo.mp4
+Success: True
+# episodes completed so far: 214
+# successes: 188 (87.9%)
+
+Task: pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+Starting episode 15...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_t/2026_03_12-23_46_53--episode=215--success=True--task=pick_up_the_black_bowl_in_the_top_drawer_of_the_wo.mp4
+Success: True
+# episodes completed so far: 215
+# successes: 189 (87.9%)
+
+Task: pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+Starting episode 16...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_t/2026_03_12-23_46_53--episode=216--success=True--task=pick_up_the_black_bowl_in_the_top_drawer_of_the_wo.mp4
+Success: True
+# episodes completed so far: 216
+# successes: 190 (88.0%)
+
+Task: pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+Starting episode 17...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_t/2026_03_12-23_46_53--episode=217--success=False--task=pick_up_the_black_bowl_in_the_top_drawer_of_the_wo.mp4
+Success: False
+# episodes completed so far: 217
+# successes: 190 (87.6%)
+
+Task: pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+Starting episode 18...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_t/2026_03_12-23_46_53--episode=218--success=False--task=pick_up_the_black_bowl_in_the_top_drawer_of_the_wo.mp4
+Success: False
+# episodes completed so far: 218
+# successes: 190 (87.2%)
+
+Task: pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+Starting episode 19...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_t/2026_03_12-23_46_53--episode=219--success=True--task=pick_up_the_black_bowl_in_the_top_drawer_of_the_wo.mp4
+Success: True
+# episodes completed so far: 219
+# successes: 191 (87.2%)
+
+Task: pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+Starting episode 20...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_t/2026_03_12-23_46_53--episode=220--success=True--task=pick_up_the_black_bowl_in_the_top_drawer_of_the_wo.mp4
+Success: True
+# episodes completed so far: 220
+# successes: 192 (87.3%)
+
+Task: pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+Starting episode 21...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_t/2026_03_12-23_46_53--episode=221--success=True--task=pick_up_the_black_bowl_in_the_top_drawer_of_the_wo.mp4
+Success: True
+# episodes completed so far: 221
+# successes: 193 (87.3%)
+
+Task: pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+Starting episode 22...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_t/2026_03_12-23_46_53--episode=222--success=True--task=pick_up_the_black_bowl_in_the_top_drawer_of_the_wo.mp4
+Success: True
+# episodes completed so far: 222
+# successes: 194 (87.4%)
+
+Task: pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+Starting episode 23...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_t/2026_03_12-23_46_53--episode=223--success=True--task=pick_up_the_black_bowl_in_the_top_drawer_of_the_wo.mp4
+Success: True
+# episodes completed so far: 223
+# successes: 195 (87.4%)
+
+Task: pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+Starting episode 24...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_t/2026_03_12-23_46_53--episode=224--success=True--task=pick_up_the_black_bowl_in_the_top_drawer_of_the_wo.mp4
+Success: True
+# episodes completed so far: 224
+# successes: 196 (87.5%)
+
+Task: pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+Starting episode 25...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_t/2026_03_12-23_46_53--episode=225--success=True--task=pick_up_the_black_bowl_in_the_top_drawer_of_the_wo.mp4
+Success: True
+# episodes completed so far: 225
+# successes: 197 (87.6%)
+
+Task: pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+Starting episode 26...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_t/2026_03_12-23_46_53--episode=226--success=True--task=pick_up_the_black_bowl_in_the_top_drawer_of_the_wo.mp4
+Success: True
+# episodes completed so far: 226
+# successes: 198 (87.6%)
+
+Task: pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+Starting episode 27...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_t/2026_03_12-23_46_53--episode=227--success=True--task=pick_up_the_black_bowl_in_the_top_drawer_of_the_wo.mp4
+Success: True
+# episodes completed so far: 227
+# successes: 199 (87.7%)
+
+Task: pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+Starting episode 28...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_t/2026_03_12-23_46_53--episode=228--success=False--task=pick_up_the_black_bowl_in_the_top_drawer_of_the_wo.mp4
+Success: False
+# episodes completed so far: 228
+# successes: 199 (87.3%)
+
+Task: pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+Starting episode 29...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_t/2026_03_12-23_46_53--episode=229--success=True--task=pick_up_the_black_bowl_in_the_top_drawer_of_the_wo.mp4
+Success: True
+# episodes completed so far: 229
+# successes: 200 (87.3%)
+
+Task: pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+Starting episode 30...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_t/2026_03_12-23_46_53--episode=230--success=False--task=pick_up_the_black_bowl_in_the_top_drawer_of_the_wo.mp4
+Success: False
+# episodes completed so far: 230
+# successes: 200 (87.0%)
+
+Task: pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+Starting episode 31...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_t/2026_03_12-23_46_53--episode=231--success=True--task=pick_up_the_black_bowl_in_the_top_drawer_of_the_wo.mp4
+Success: True
+# episodes completed so far: 231
+# successes: 201 (87.0%)
+
+Task: pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+Starting episode 32...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_t/2026_03_12-23_46_53--episode=232--success=True--task=pick_up_the_black_bowl_in_the_top_drawer_of_the_wo.mp4
+Success: True
+# episodes completed so far: 232
+# successes: 202 (87.1%)
+
+Task: pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+Starting episode 33...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_t/2026_03_12-23_46_53--episode=233--success=True--task=pick_up_the_black_bowl_in_the_top_drawer_of_the_wo.mp4
+Success: True
+# episodes completed so far: 233
+# successes: 203 (87.1%)
+
+Task: pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+Starting episode 34...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_t/2026_03_12-23_46_53--episode=234--success=False--task=pick_up_the_black_bowl_in_the_top_drawer_of_the_wo.mp4
+Success: False
+# episodes completed so far: 234
+# successes: 203 (86.8%)
+
+Task: pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+Starting episode 35...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_t/2026_03_12-23_46_53--episode=235--success=True--task=pick_up_the_black_bowl_in_the_top_drawer_of_the_wo.mp4
+Success: True
+# episodes completed so far: 235
+# successes: 204 (86.8%)
+
+Task: pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+Starting episode 36...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_t/2026_03_12-23_46_53--episode=236--success=True--task=pick_up_the_black_bowl_in_the_top_drawer_of_the_wo.mp4
+Success: True
+# episodes completed so far: 236
+# successes: 205 (86.9%)
+
+Task: pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+Starting episode 37...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_t/2026_03_12-23_46_53--episode=237--success=True--task=pick_up_the_black_bowl_in_the_top_drawer_of_the_wo.mp4
+Success: True
+# episodes completed so far: 237
+# successes: 206 (86.9%)
+
+Task: pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+Starting episode 38...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_t/2026_03_12-23_46_53--episode=238--success=True--task=pick_up_the_black_bowl_in_the_top_drawer_of_the_wo.mp4
+Success: True
+# episodes completed so far: 238
+# successes: 207 (87.0%)
+
+Task: pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+Starting episode 39...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_t/2026_03_12-23_46_53--episode=239--success=False--task=pick_up_the_black_bowl_in_the_top_drawer_of_the_wo.mp4
+Success: False
+# episodes completed so far: 239
+# successes: 207 (86.6%)
+
+Task: pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+Starting episode 40...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_t/2026_03_12-23_46_53--episode=240--success=True--task=pick_up_the_black_bowl_in_the_top_drawer_of_the_wo.mp4
+Success: True
+# episodes completed so far: 240
+# successes: 208 (86.7%)
+
+Task: pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+Starting episode 41...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_t/2026_03_12-23_46_53--episode=241--success=True--task=pick_up_the_black_bowl_in_the_top_drawer_of_the_wo.mp4
+Success: True
+# episodes completed so far: 241
+# successes: 209 (86.7%)
+
+Task: pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+Starting episode 42...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_t/2026_03_12-23_46_53--episode=242--success=True--task=pick_up_the_black_bowl_in_the_top_drawer_of_the_wo.mp4
+Success: True
+# episodes completed so far: 242
+# successes: 210 (86.8%)
+
+Task: pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+Starting episode 43...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_t/2026_03_12-23_46_53--episode=243--success=True--task=pick_up_the_black_bowl_in_the_top_drawer_of_the_wo.mp4
+Success: True
+# episodes completed so far: 243
+# successes: 211 (86.8%)
+
+Task: pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+Starting episode 44...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_t/2026_03_12-23_46_53--episode=244--success=False--task=pick_up_the_black_bowl_in_the_top_drawer_of_the_wo.mp4
+Success: False
+# episodes completed so far: 244
+# successes: 211 (86.5%)
+
+Task: pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+Starting episode 45...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_t/2026_03_12-23_46_53--episode=245--success=True--task=pick_up_the_black_bowl_in_the_top_drawer_of_the_wo.mp4
+Success: True
+# episodes completed so far: 245
+# successes: 212 (86.5%)
+
+Task: pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+Starting episode 46...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_t/2026_03_12-23_46_53--episode=246--success=False--task=pick_up_the_black_bowl_in_the_top_drawer_of_the_wo.mp4
+Success: False
+# episodes completed so far: 246
+# successes: 212 (86.2%)
+
+Task: pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+Starting episode 47...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_t/2026_03_12-23_46_53--episode=247--success=True--task=pick_up_the_black_bowl_in_the_top_drawer_of_the_wo.mp4
+Success: True
+# episodes completed so far: 247
+# successes: 213 (86.2%)
+
+Task: pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+Starting episode 48...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_t/2026_03_12-23_46_53--episode=248--success=True--task=pick_up_the_black_bowl_in_the_top_drawer_of_the_wo.mp4
+Success: True
+# episodes completed so far: 248
+# successes: 214 (86.3%)
+
+Task: pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+Starting episode 49...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_t/2026_03_12-23_46_53--episode=249--success=True--task=pick_up_the_black_bowl_in_the_top_drawer_of_the_wo.mp4
+Success: True
+# episodes completed so far: 249
+# successes: 215 (86.3%)
+
+Task: pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+Starting episode 50...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_t/2026_03_12-23_46_53--episode=250--success=True--task=pick_up_the_black_bowl_in_the_top_drawer_of_the_wo.mp4
+Success: True
+# episodes completed so far: 250
+# successes: 216 (86.4%)
+Current task success rate: 0.76
+Current total success rate: 0.864
+
+Task: pick up the black bowl on the ramekin and place it on the plate
+Starting episode 1...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=251--success=False--task=pick_up_the_black_bowl_on_the_ramekin_and_place_it.mp4
+Success: False
+# episodes completed so far: 251
+# successes: 216 (86.1%)
+
+Task: pick up the black bowl on the ramekin and place it on the plate
+Starting episode 2...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=252--success=False--task=pick_up_the_black_bowl_on_the_ramekin_and_place_it.mp4
+Success: False
+# episodes completed so far: 252
+# successes: 216 (85.7%)
+
+Task: pick up the black bowl on the ramekin and place it on the plate
+Starting episode 3...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=253--success=True--task=pick_up_the_black_bowl_on_the_ramekin_and_place_it.mp4
+Success: True
+# episodes completed so far: 253
+# successes: 217 (85.8%)
+
+Task: pick up the black bowl on the ramekin and place it on the plate
+Starting episode 4...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=254--success=False--task=pick_up_the_black_bowl_on_the_ramekin_and_place_it.mp4
+Success: False
+# episodes completed so far: 254
+# successes: 217 (85.4%)
+
+Task: pick up the black bowl on the ramekin and place it on the plate
+Starting episode 5...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=255--success=False--task=pick_up_the_black_bowl_on_the_ramekin_and_place_it.mp4
+Success: False
+# episodes completed so far: 255
+# successes: 217 (85.1%)
+
+Task: pick up the black bowl on the ramekin and place it on the plate
+Starting episode 6...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=256--success=True--task=pick_up_the_black_bowl_on_the_ramekin_and_place_it.mp4
+Success: True
+# episodes completed so far: 256
+# successes: 218 (85.2%)
+
+Task: pick up the black bowl on the ramekin and place it on the plate
+Starting episode 7...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=257--success=False--task=pick_up_the_black_bowl_on_the_ramekin_and_place_it.mp4
+Success: False
+# episodes completed so far: 257
+# successes: 218 (84.8%)
+
+Task: pick up the black bowl on the ramekin and place it on the plate
+Starting episode 8...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=258--success=False--task=pick_up_the_black_bowl_on_the_ramekin_and_place_it.mp4
+Success: False
+# episodes completed so far: 258
+# successes: 218 (84.5%)
+
+Task: pick up the black bowl on the ramekin and place it on the plate
+Starting episode 9...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=259--success=False--task=pick_up_the_black_bowl_on_the_ramekin_and_place_it.mp4
+Success: False
+# episodes completed so far: 259
+# successes: 218 (84.2%)
+
+Task: pick up the black bowl on the ramekin and place it on the plate
+Starting episode 10...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=260--success=True--task=pick_up_the_black_bowl_on_the_ramekin_and_place_it.mp4
+Success: True
+# episodes completed so far: 260
+# successes: 219 (84.2%)
+
+Task: pick up the black bowl on the ramekin and place it on the plate
+Starting episode 11...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=261--success=False--task=pick_up_the_black_bowl_on_the_ramekin_and_place_it.mp4
+Success: False
+# episodes completed so far: 261
+# successes: 219 (83.9%)
+
+Task: pick up the black bowl on the ramekin and place it on the plate
+Starting episode 12...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=262--success=False--task=pick_up_the_black_bowl_on_the_ramekin_and_place_it.mp4
+Success: False
+# episodes completed so far: 262
+# successes: 219 (83.6%)
+
+Task: pick up the black bowl on the ramekin and place it on the plate
+Starting episode 13...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=263--success=False--task=pick_up_the_black_bowl_on_the_ramekin_and_place_it.mp4
+Success: False
+# episodes completed so far: 263
+# successes: 219 (83.3%)
+
+Task: pick up the black bowl on the ramekin and place it on the plate
+Starting episode 14...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=264--success=False--task=pick_up_the_black_bowl_on_the_ramekin_and_place_it.mp4
+Success: False
+# episodes completed so far: 264
+# successes: 219 (83.0%)
+
+Task: pick up the black bowl on the ramekin and place it on the plate
+Starting episode 15...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=265--success=True--task=pick_up_the_black_bowl_on_the_ramekin_and_place_it.mp4
+Success: True
+# episodes completed so far: 265
+# successes: 220 (83.0%)
+
+Task: pick up the black bowl on the ramekin and place it on the plate
+Starting episode 16...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=266--success=False--task=pick_up_the_black_bowl_on_the_ramekin_and_place_it.mp4
+Success: False
+# episodes completed so far: 266
+# successes: 220 (82.7%)
+
+Task: pick up the black bowl on the ramekin and place it on the plate
+Starting episode 17...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=267--success=False--task=pick_up_the_black_bowl_on_the_ramekin_and_place_it.mp4
+Success: False
+# episodes completed so far: 267
+# successes: 220 (82.4%)
+
+Task: pick up the black bowl on the ramekin and place it on the plate
+Starting episode 18...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=268--success=False--task=pick_up_the_black_bowl_on_the_ramekin_and_place_it.mp4
+Success: False
+# episodes completed so far: 268
+# successes: 220 (82.1%)
+
+Task: pick up the black bowl on the ramekin and place it on the plate
+Starting episode 19...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=269--success=True--task=pick_up_the_black_bowl_on_the_ramekin_and_place_it.mp4
+Success: True
+# episodes completed so far: 269
+# successes: 221 (82.2%)
+
+Task: pick up the black bowl on the ramekin and place it on the plate
+Starting episode 20...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=270--success=False--task=pick_up_the_black_bowl_on_the_ramekin_and_place_it.mp4
+Success: False
+# episodes completed so far: 270
+# successes: 221 (81.9%)
+
+Task: pick up the black bowl on the ramekin and place it on the plate
+Starting episode 21...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=271--success=True--task=pick_up_the_black_bowl_on_the_ramekin_and_place_it.mp4
+Success: True
+# episodes completed so far: 271
+# successes: 222 (81.9%)
+
+Task: pick up the black bowl on the ramekin and place it on the plate
+Starting episode 22...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=272--success=True--task=pick_up_the_black_bowl_on_the_ramekin_and_place_it.mp4
+Success: True
+# episodes completed so far: 272
+# successes: 223 (82.0%)
+
+Task: pick up the black bowl on the ramekin and place it on the plate
+Starting episode 23...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=273--success=False--task=pick_up_the_black_bowl_on_the_ramekin_and_place_it.mp4
+Success: False
+# episodes completed so far: 273
+# successes: 223 (81.7%)
+
+Task: pick up the black bowl on the ramekin and place it on the plate
+Starting episode 24...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=274--success=True--task=pick_up_the_black_bowl_on_the_ramekin_and_place_it.mp4
+Success: True
+# episodes completed so far: 274
+# successes: 224 (81.8%)
+
+Task: pick up the black bowl on the ramekin and place it on the plate
+Starting episode 25...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=275--success=True--task=pick_up_the_black_bowl_on_the_ramekin_and_place_it.mp4
+Success: True
+# episodes completed so far: 275
+# successes: 225 (81.8%)
+
+Task: pick up the black bowl on the ramekin and place it on the plate
+Starting episode 26...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=276--success=False--task=pick_up_the_black_bowl_on_the_ramekin_and_place_it.mp4
+Success: False
+# episodes completed so far: 276
+# successes: 225 (81.5%)
+
+Task: pick up the black bowl on the ramekin and place it on the plate
+Starting episode 27...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=277--success=False--task=pick_up_the_black_bowl_on_the_ramekin_and_place_it.mp4
+Success: False
+# episodes completed so far: 277
+# successes: 225 (81.2%)
+
+Task: pick up the black bowl on the ramekin and place it on the plate
+Starting episode 28...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=278--success=False--task=pick_up_the_black_bowl_on_the_ramekin_and_place_it.mp4
+Success: False
+# episodes completed so far: 278
+# successes: 225 (80.9%)
+
+Task: pick up the black bowl on the ramekin and place it on the plate
+Starting episode 29...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=279--success=False--task=pick_up_the_black_bowl_on_the_ramekin_and_place_it.mp4
+Success: False
+# episodes completed so far: 279
+# successes: 225 (80.6%)
+
+Task: pick up the black bowl on the ramekin and place it on the plate
+Starting episode 30...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=280--success=False--task=pick_up_the_black_bowl_on_the_ramekin_and_place_it.mp4
+Success: False
+# episodes completed so far: 280
+# successes: 225 (80.4%)
+
+Task: pick up the black bowl on the ramekin and place it on the plate
+Starting episode 31...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=281--success=False--task=pick_up_the_black_bowl_on_the_ramekin_and_place_it.mp4
+Success: False
+# episodes completed so far: 281
+# successes: 225 (80.1%)
+
+Task: pick up the black bowl on the ramekin and place it on the plate
+Starting episode 32...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=282--success=True--task=pick_up_the_black_bowl_on_the_ramekin_and_place_it.mp4
+Success: True
+# episodes completed so far: 282
+# successes: 226 (80.1%)
+
+Task: pick up the black bowl on the ramekin and place it on the plate
+Starting episode 33...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=283--success=False--task=pick_up_the_black_bowl_on_the_ramekin_and_place_it.mp4
+Success: False
+# episodes completed so far: 283
+# successes: 226 (79.9%)
+
+Task: pick up the black bowl on the ramekin and place it on the plate
+Starting episode 34...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=284--success=False--task=pick_up_the_black_bowl_on_the_ramekin_and_place_it.mp4
+Success: False
+# episodes completed so far: 284
+# successes: 226 (79.6%)
+
+Task: pick up the black bowl on the ramekin and place it on the plate
+Starting episode 35...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=285--success=False--task=pick_up_the_black_bowl_on_the_ramekin_and_place_it.mp4
+Success: False
+# episodes completed so far: 285
+# successes: 226 (79.3%)
+
+Task: pick up the black bowl on the ramekin and place it on the plate
+Starting episode 36...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=286--success=False--task=pick_up_the_black_bowl_on_the_ramekin_and_place_it.mp4
+Success: False
+# episodes completed so far: 286
+# successes: 226 (79.0%)
+
+Task: pick up the black bowl on the ramekin and place it on the plate
+Starting episode 37...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=287--success=True--task=pick_up_the_black_bowl_on_the_ramekin_and_place_it.mp4
+Success: True
+# episodes completed so far: 287
+# successes: 227 (79.1%)
+
+Task: pick up the black bowl on the ramekin and place it on the plate
+Starting episode 38...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=288--success=True--task=pick_up_the_black_bowl_on_the_ramekin_and_place_it.mp4
+Success: True
+# episodes completed so far: 288
+# successes: 228 (79.2%)
+
+Task: pick up the black bowl on the ramekin and place it on the plate
+Starting episode 39...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=289--success=False--task=pick_up_the_black_bowl_on_the_ramekin_and_place_it.mp4
+Success: False
+# episodes completed so far: 289
+# successes: 228 (78.9%)
+
+Task: pick up the black bowl on the ramekin and place it on the plate
+Starting episode 40...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=290--success=False--task=pick_up_the_black_bowl_on_the_ramekin_and_place_it.mp4
+Success: False
+# episodes completed so far: 290
+# successes: 228 (78.6%)
+
+Task: pick up the black bowl on the ramekin and place it on the plate
+Starting episode 41...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=291--success=False--task=pick_up_the_black_bowl_on_the_ramekin_and_place_it.mp4
+Success: False
+# episodes completed so far: 291
+# successes: 228 (78.4%)
+
+Task: pick up the black bowl on the ramekin and place it on the plate
+Starting episode 42...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=292--success=True--task=pick_up_the_black_bowl_on_the_ramekin_and_place_it.mp4
+Success: True
+# episodes completed so far: 292
+# successes: 229 (78.4%)
+
+Task: pick up the black bowl on the ramekin and place it on the plate
+Starting episode 43...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=293--success=False--task=pick_up_the_black_bowl_on_the_ramekin_and_place_it.mp4
+Success: False
+# episodes completed so far: 293
+# successes: 229 (78.2%)
+
+Task: pick up the black bowl on the ramekin and place it on the plate
+Starting episode 44...
+Saved rollout MP4 at path /home/szliutong/Desktop/openvla_libero_rollouts/libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate/2026_03_12-23_46_53--episode=294--success=True--task=pick_up_the_black_bowl_on_the_ramekin_and_place_it.mp4
+Success: True
+# episodes completed so far: 294
+# successes: 230 (78.2%)
