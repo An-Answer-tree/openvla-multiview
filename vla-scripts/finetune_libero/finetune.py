@@ -65,6 +65,7 @@ class FinetuneConfig:
     learning_rate: float = 5e-4                                                     # Fine-tuning learning rate
     grad_accumulation_steps: int = 4                                                # Gradient accumulation steps
     image_aug: bool = True                                                          # Whether to train with image augmentations
+    shuffle_buffer_size: int = 100_000                                              # Dataloader shuffle buffer size
     save_latest_checkpoint_only: bool = False                                       # Whether to keep only the latest checkpoint
 
     # LoRA Arguments
@@ -173,6 +174,7 @@ def finetune(cfg: FinetuneConfig) -> None:
         camera_view=camera_view,
         train=True,
         image_aug=cfg.image_aug,
+        shuffle_buffer_size=cfg.shuffle_buffer_size,
     )
 
     if distributed_state.is_main_process:

@@ -103,7 +103,7 @@ class FinetuneConfig:
                                                                     #   => CAUTION: Reduces memory but hurts performance
 
     # Tracking Parameters
-    wandb_project: str = "openvla-libero-raw-data"                                  # Name of W&B project to log to (use default!)
+    wandb_project: str = "openvla-frontview-test"                                  # Name of W&B project to log to (use default!)
     wandb_entity: str = "szliutong-wuhan-university"                          # Name of entity to log under
     run_id_note: Optional[str] = None                               # Extra note for logging, Weights & Biases
 

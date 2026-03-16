@@ -1,13 +1,12 @@
 import json
-import os
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, Iterator, List
+from typing import Any, Dict, Iterator, List, Optional
 
 import h5py
 import numpy as np
 from PIL import Image
-from torch.utils.data import IterableDataset, get_worker_info
+from torch.utils.data import IterableDataset
 from torchvision.transforms import ColorJitter, InterpolationMode, RandomResizedCrop
 
 
@@ -17,7 +16,12 @@ class LiberoTrajectory:
     demo_key: str
     instruction: str
     num_steps: int
-    step_indices: tuple[int, ...]
+
+
+@dataclass(frozen=True)
+class LiberoTransition:
+    trajectory_idx: int
+    step_idx: int
 
 
 class LiberoMultiviewDataset(IterableDataset):
@@ -29,7 +33,8 @@ class LiberoMultiviewDataset(IterableDataset):
         camera_view: str = "agentview_rgb",
         train: bool = True,
         image_aug: bool = False,
-        seed: int = 7,
+        shuffle_buffer_size: int = 100_000,
+        seed: Optional[int] = None,
         repeat: bool = True,
     ) -> None:
         self.data_root_dir = Path(data_root_dir)
@@ -38,11 +43,12 @@ class LiberoMultiviewDataset(IterableDataset):
         self.camera_view = camera_view
         self.train = train
         self.image_aug = image_aug
+        self.shuffle_buffer_size = max(int(shuffle_buffer_size), 1)
         self.seed = seed
         self.repeat = repeat
 
         self.dataset_dir = self._resolve_dataset_dir(self.data_root_dir, self.benchmark_name)
-        self.trajectories, stats = self._index_dataset(self.dataset_dir)
+        self.trajectories, self.transitions, stats = self._index_dataset(self.dataset_dir)
         self._action_q01 = np.asarray(stats["q01"], dtype=np.float32)
         self._action_q99 = np.asarray(stats["q99"], dtype=np.float32)
         self._action_mask = np.asarray(stats["mask"], dtype=bool)
@@ -87,8 +93,11 @@ class LiberoMultiviewDataset(IterableDataset):
 
         raise FileNotFoundError(f"Could not find LIBERO benchmark directory for `{benchmark_name}` under {data_root_dir}")
 
-    def _index_dataset(self, dataset_dir: Path) -> tuple[List[LiberoTrajectory], Dict[str, Any]]:
+    def _index_dataset(
+        self, dataset_dir: Path
+    ) -> tuple[List[LiberoTrajectory], List[LiberoTransition], Dict[str, Any]]:
         trajectories: List[LiberoTrajectory] = []
+        transitions: List[LiberoTransition] = []
         all_actions: List[np.ndarray] = []
 
         hdf5_files = sorted(dataset_dir.glob("*.hdf5"))
@@ -113,16 +122,23 @@ class LiberoMultiviewDataset(IterableDataset):
                         continue
 
                     actions = self._standardize_actions(raw_actions)
+                    trajectory_idx = len(trajectories)
                     trajectories.append(
                         LiberoTrajectory(
                             file_path=str(hdf5_path),
                             demo_key=demo_key,
                             instruction=instruction,
                             num_steps=len(step_indices),
-                            step_indices=step_indices,
                         )
                     )
+                    transitions.extend(
+                        LiberoTransition(trajectory_idx=trajectory_idx, step_idx=int(step_idx))
+                        for step_idx in step_indices
+                    )
                     all_actions.append(actions[list(step_indices)])
+
+        if not all_actions:
+            raise ValueError(f"No valid transitions found in {dataset_dir} after no-op filtering")
 
         stacked_actions = np.concatenate(all_actions, axis=0)
         q01 = np.quantile(stacked_actions, 0.01, axis=0).astype(np.float32)
@@ -134,7 +150,7 @@ class LiberoMultiviewDataset(IterableDataset):
         proprio_dim = stacked_actions.shape[1]
         zero_proprio = np.zeros((proprio_dim,), dtype=np.float32)
 
-        return trajectories, {
+        return trajectories, transitions, {
             "mean": stacked_actions.mean(axis=0).astype(np.float32).tolist(),
             "std": stacked_actions.std(axis=0).astype(np.float32).tolist(),
             "min": stacked_actions.min(axis=0).astype(np.float32).tolist(),
@@ -161,6 +177,15 @@ class LiberoMultiviewDataset(IterableDataset):
         # Match OpenVLA's official LIBERO RLDS transform:
         # raw gripper action is -1=open, +1=close -> clip to [0, 1], then invert -> 1=open, 0=close.
         standardized[:, -1] = 1.0 - np.clip(standardized[:, -1], 0.0, 1.0)
+        return standardized
+
+    @staticmethod
+    def _standardize_action(action: np.ndarray) -> np.ndarray:
+        standardized = np.asarray(action, dtype=np.float32).copy()
+        if standardized.ndim != 1 or standardized.shape[0] == 0:
+            raise ValueError(f"Expected 1D action array with non-zero action dim, got {standardized.shape}")
+
+        standardized[-1] = 1.0 - np.clip(standardized[-1], 0.0, 1.0)
         return standardized
 
     @staticmethod
@@ -213,54 +238,77 @@ class LiberoMultiviewDataset(IterableDataset):
             )(pil_image)
         return pil_image
 
-    def _iter_trajectory_indices(self, rng: np.random.Generator) -> Iterator[int]:
-        world_size = int(os.environ.get("WORLD_SIZE", "1"))
-        rank = int(os.environ.get("RANK", "0"))
-        worker_info = get_worker_info()
-        num_workers = worker_info.num_workers if worker_info is not None else 1
-        worker_id = worker_info.id if worker_info is not None else 0
+    def _iter_transition_indices(self, rng: np.random.Generator) -> Iterator[int]:
+        num_transitions = len(self.transitions)
 
-        num_shards = world_size * num_workers
-        shard_id = rank * num_workers + worker_id
+        if num_transitions == 0:
+            return
 
-        while True:
-            order = np.arange(len(self.trajectories))
-            if self.train:
-                rng.shuffle(order)
+        def next_transition_from_source(cursor: int) -> tuple[int, int | None]:
+            if num_transitions == 0:
+                return cursor, None
 
-            for idx in order[shard_id::num_shards]:
-                yield int(idx)
+            if self.repeat:
+                transition_idx = cursor % num_transitions
+                return cursor + 1, transition_idx
 
-            if not self.repeat:
-                return
+            if cursor >= num_transitions:
+                return cursor, None
+
+            return cursor + 1, cursor
+
+        source_cursor = 0
+        buffer: List[int] = []
+        # Mirror RLDS shuffle(buffer_size) more closely than trajectory-wise shuffling:
+        # when `repeat=True` and the buffer is larger than one pass over the dataset,
+        # the buffer will contain transitions from multiple repeated passes.
+        target_buffer_size = self.shuffle_buffer_size if self.repeat else min(self.shuffle_buffer_size, num_transitions)
+        while len(buffer) < target_buffer_size:
+            source_cursor, transition_idx = next_transition_from_source(source_cursor)
+            if transition_idx is None:
+                break
+            buffer.append(transition_idx)
+
+        if not buffer:
+            return
+
+        while buffer:
+            pick_idx = int(rng.integers(len(buffer)))
+            transition_idx = buffer[pick_idx]
+            yield transition_idx
+
+            source_cursor, next_transition_idx = next_transition_from_source(source_cursor)
+            if next_transition_idx is None:
+                buffer[pick_idx] = buffer[-1]
+                buffer.pop()
+            else:
+                buffer[pick_idx] = next_transition_idx
 
     def __iter__(self) -> Iterator[Dict[str, Any]]:
-        worker_info = get_worker_info()
-        worker_id = worker_info.id if worker_info is not None else 0
-        rank = int(os.environ.get("RANK", "0"))
-        rng = np.random.default_rng(self.seed + 10_000 * rank + worker_id)
+        rng = np.random.default_rng(self.seed)
+        handle_cache: Dict[str, h5py.File] = {}
 
-        for traj_idx in self._iter_trajectory_indices(rng):
-            trajectory = self.trajectories[traj_idx]
-            with h5py.File(trajectory.file_path, "r") as handle:
-                demo = handle["data"][trajectory.demo_key]
-                images = demo["obs"][self.camera_view]
-                actions = self._standardize_actions(np.asarray(demo["actions"], dtype=np.float32))
+        try:
+            for transition_idx in self._iter_transition_indices(rng):
+                transition = self.transitions[transition_idx]
+                trajectory = self.trajectories[transition.trajectory_idx]
+                if trajectory.file_path not in handle_cache:
+                    handle_cache[trajectory.file_path] = h5py.File(trajectory.file_path, "r")
 
-                step_order = np.asarray(trajectory.step_indices, dtype=np.int64)
-                if self.train:
-                    rng.shuffle(step_order)
-
-                for step_idx in step_order:
-                    image = self._prepare_image(np.asarray(images[step_idx]))
-                    normalized_action = self._normalize_action(actions[step_idx])
-                    batch = {
-                        "dataset_name": self.benchmark_name,
-                        "action": normalized_action[None, ...],
-                        "observation": {"image_primary": np.asarray(image)[None, ...]},
-                        "task": {"language_instruction": trajectory.instruction.encode("utf-8")},
-                    }
-                    yield self.batch_transform(batch)
+                demo = handle_cache[trajectory.file_path]["data"][trajectory.demo_key]
+                image = self._prepare_image(np.asarray(demo["obs"][self.camera_view][transition.step_idx]))
+                action = self._standardize_action(np.asarray(demo["actions"][transition.step_idx], dtype=np.float32))
+                normalized_action = self._normalize_action(action)
+                batch = {
+                    "dataset_name": self.benchmark_name,
+                    "action": normalized_action[None, ...],
+                    "observation": {"image_primary": np.asarray(image)[None, ...]},
+                    "task": {"language_instruction": trajectory.instruction.encode("utf-8")},
+                }
+                yield self.batch_transform(batch)
+        finally:
+            for handle in handle_cache.values():
+                handle.close()
 
     def __len__(self) -> int:
         return self._num_transitions
