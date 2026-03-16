@@ -17,6 +17,7 @@ class LiberoTrajectory:
     demo_key: str
     instruction: str
     num_steps: int
+    step_indices: tuple[int, ...]
 
 
 class LiberoMultiviewDataset(IterableDataset):
@@ -45,6 +46,9 @@ class LiberoMultiviewDataset(IterableDataset):
         self._action_q01 = np.asarray(stats["q01"], dtype=np.float32)
         self._action_q99 = np.asarray(stats["q99"], dtype=np.float32)
         self._action_mask = np.asarray(stats["mask"], dtype=bool)
+        self._action_min = np.asarray(stats["min"], dtype=np.float32)
+        self._action_max = np.asarray(stats["max"], dtype=np.float32)
+        self._zeros_mask = self._action_min == self._action_max
         self._num_transitions = int(stats["num_transitions"])
         self._num_trajectories = int(stats["num_trajectories"])
 
@@ -58,6 +62,14 @@ class LiberoMultiviewDataset(IterableDataset):
                     "q01": stats["q01"],
                     "q99": stats["q99"],
                     "mask": stats["mask"],
+                },
+                "proprio": {
+                    "mean": stats["proprio_mean"],
+                    "std": stats["proprio_std"],
+                    "min": stats["proprio_min"],
+                    "max": stats["proprio_max"],
+                    "q01": stats["proprio_q01"],
+                    "q99": stats["proprio_q99"],
                 },
                 "num_transitions": self._num_transitions,
                 "num_trajectories": self._num_trajectories,
@@ -95,21 +107,32 @@ class LiberoMultiviewDataset(IterableDataset):
                     if self.camera_view not in obs_group:
                         raise KeyError(f"Camera view `{self.camera_view}` not found in {hdf5_path}:{demo_key}/obs")
 
-                    actions = np.asarray(demo["actions"], dtype=np.float32)
+                    raw_actions = np.asarray(demo["actions"], dtype=np.float32)
+                    step_indices = self._get_kept_step_indices(raw_actions)
+                    if not step_indices:
+                        continue
+
+                    actions = self._standardize_actions(raw_actions)
                     trajectories.append(
                         LiberoTrajectory(
                             file_path=str(hdf5_path),
                             demo_key=demo_key,
                             instruction=instruction,
-                            num_steps=int(actions.shape[0]),
+                            num_steps=len(step_indices),
+                            step_indices=step_indices,
                         )
                     )
-                    all_actions.append(actions)
+                    all_actions.append(actions[list(step_indices)])
 
         stacked_actions = np.concatenate(all_actions, axis=0)
         q01 = np.quantile(stacked_actions, 0.01, axis=0).astype(np.float32)
         q99 = np.quantile(stacked_actions, 0.99, axis=0).astype(np.float32)
         mask = (q99 > q01).astype(bool)
+        # Match the official RLDS LIBERO transform: leave the standardized gripper action
+        # in absolute 0/1 space instead of q01/q99-normalizing it.
+        mask[-1] = False
+        proprio_dim = stacked_actions.shape[1]
+        zero_proprio = np.zeros((proprio_dim,), dtype=np.float32)
 
         return trajectories, {
             "mean": stacked_actions.mean(axis=0).astype(np.float32).tolist(),
@@ -119,12 +142,49 @@ class LiberoMultiviewDataset(IterableDataset):
             "q01": q01.tolist(),
             "q99": q99.tolist(),
             "mask": mask.tolist(),
+            "proprio_mean": zero_proprio.tolist(),
+            "proprio_std": zero_proprio.tolist(),
+            "proprio_min": zero_proprio.tolist(),
+            "proprio_max": zero_proprio.tolist(),
+            "proprio_q01": zero_proprio.tolist(),
+            "proprio_q99": zero_proprio.tolist(),
             "num_transitions": int(stacked_actions.shape[0]),
             "num_trajectories": len(trajectories),
         }
 
+    @staticmethod
+    def _standardize_actions(actions: np.ndarray) -> np.ndarray:
+        standardized = np.asarray(actions, dtype=np.float32).copy()
+        if standardized.ndim != 2 or standardized.shape[1] == 0:
+            raise ValueError(f"Expected 2D action array with non-zero action dim, got {standardized.shape}")
+
+        # Match OpenVLA's official LIBERO RLDS transform:
+        # raw gripper action is -1=open, +1=close -> clip to [0, 1], then invert -> 1=open, 0=close.
+        standardized[:, -1] = 1.0 - np.clip(standardized[:, -1], 0.0, 1.0)
+        return standardized
+
+    @staticmethod
+    def _is_noop(action: np.ndarray, prev_action: np.ndarray | None, threshold: float = 1e-4) -> bool:
+        if prev_action is None:
+            return float(np.linalg.norm(action[:-1])) < threshold
+
+        return float(np.linalg.norm(action[:-1])) < threshold and bool(action[-1] == prev_action[-1])
+
+    def _get_kept_step_indices(self, actions: np.ndarray) -> tuple[int, ...]:
+        kept_indices: List[int] = []
+        prev_action: np.ndarray | None = None
+
+        for step_idx, action in enumerate(np.asarray(actions, dtype=np.float32)):
+            if self._is_noop(action, prev_action):
+                continue
+
+            kept_indices.append(step_idx)
+            prev_action = action
+
+        return tuple(kept_indices)
+
     def _normalize_action(self, action: np.ndarray) -> np.ndarray:
-        normalized = np.zeros_like(action, dtype=np.float32)
+        normalized = np.asarray(action, dtype=np.float32).copy()
         normalized[self._action_mask] = np.clip(
             2.0 * (action[self._action_mask] - self._action_q01[self._action_mask])
             / (self._action_q99[self._action_mask] - self._action_q01[self._action_mask] + 1e-8)
@@ -132,6 +192,7 @@ class LiberoMultiviewDataset(IterableDataset):
             -1.0,
             1.0,
         )
+        normalized[self._zeros_mask] = 0.0
         return normalized
 
     def _prepare_image(self, image: np.ndarray) -> Image.Image:
@@ -184,9 +245,9 @@ class LiberoMultiviewDataset(IterableDataset):
             with h5py.File(trajectory.file_path, "r") as handle:
                 demo = handle["data"][trajectory.demo_key]
                 images = demo["obs"][self.camera_view]
-                actions = np.asarray(demo["actions"], dtype=np.float32)
+                actions = self._standardize_actions(np.asarray(demo["actions"], dtype=np.float32))
 
-                step_order = np.arange(trajectory.num_steps)
+                step_order = np.asarray(trajectory.step_indices, dtype=np.int64)
                 if self.train:
                     rng.shuffle(step_order)
 

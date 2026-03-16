@@ -10,6 +10,7 @@ Usage:
         --model_family openvla \
         --pretrained_checkpoint <CHECKPOINT_PATH> \
         --task_suite_name [ libero_spatial | libero_object | libero_goal | libero_10 | libero_90 ] \
+        --camera_name [ agentview | topview | leftview | rightview | backview ] \
         --center_crop [ True | False ] \
         --run_id_note <OPTIONAL TAG TO INSERT INTO RUN ID FOR LOGGING> \
         --use_wandb [ True | False ] \
@@ -35,6 +36,7 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 if str(REPO_ROOT) not in sys.path:
     sys.path.append(str(REPO_ROOT))
 from experiments.robot.libero.libero_utils import (
+    SUPPORTED_CAMERA_NAMES,
     get_libero_dummy_action,
     get_libero_env,
     get_libero_image,
@@ -73,6 +75,7 @@ class GenerateConfig:
     # LIBERO environment-specific parameters
     #################################################################################################################
     task_suite_name: str = "libero_spatial"          # Task suite. Options: libero_spatial, libero_object, libero_goal, libero_10, libero_90
+    camera_name: str = "agentview"                   # Input camera. Options: agentview, topview, leftview, rightview, backview
     num_steps_wait: int = 10                         # Number of steps to wait for objects to stabilize in sim
     num_trials_per_task: int = 50                    # Number of rollouts per task
 
@@ -98,6 +101,11 @@ def eval_libero(cfg: GenerateConfig) -> None:
     if "image_aug" in cfg.pretrained_checkpoint:
         assert cfg.center_crop, "Expecting `center_crop==True` because model was trained with image augmentations!"
     assert not (cfg.load_in_8bit and cfg.load_in_4bit), "Cannot use both 8-bit and 4-bit quantization!"
+    if cfg.camera_name not in SUPPORTED_CAMERA_NAMES:
+        raise ValueError(
+            f"Unsupported camera_name `{cfg.camera_name}`. "
+            f"Choose from: {', '.join(SUPPORTED_CAMERA_NAMES)}"
+        )
 
     # Set random seed
     set_seed_everywhere(cfg.seed)
@@ -122,7 +130,7 @@ def eval_libero(cfg: GenerateConfig) -> None:
         processor = get_processor(cfg)
 
     # Initialize local logging
-    run_id = f"EVAL-{cfg.task_suite_name}-{cfg.model_family}-{DATE_TIME}"
+    run_id = f"EVAL-{cfg.task_suite_name}-{cfg.model_family}-cam-{cfg.camera_name}-{DATE_TIME}"
     if cfg.run_id_note is not None:
         run_id += f"--{cfg.run_id_note}"
     os.makedirs(cfg.local_log_dir, exist_ok=True)
@@ -132,6 +140,10 @@ def eval_libero(cfg: GenerateConfig) -> None:
     resolved_rollout_root_dir = os.path.expanduser(cfg.rollout_root_dir)
     print(f"Rollout videos will be saved under: {resolved_rollout_root_dir}")
     log_file.write(f"Rollout videos will be saved under: {resolved_rollout_root_dir}\n")
+    print(f"Evaluation camera: {cfg.camera_name}; rollout video pairs `{cfg.camera_name}` with `frontview`.")
+    log_file.write(
+        f"Evaluation camera: {cfg.camera_name}; rollout video pairs `{cfg.camera_name}` with `frontview`.\n"
+    )
 
     # Initialize Weights & Biases logging as well
     if cfg.use_wandb:
@@ -147,6 +159,7 @@ def eval_libero(cfg: GenerateConfig) -> None:
     num_tasks_in_suite = task_suite.n_tasks
     print(f"Task suite: {cfg.task_suite_name}")
     log_file.write(f"Task suite: {cfg.task_suite_name}\n")
+    log_file.write(f"Camera name: {cfg.camera_name}\n")
 
     # Get expected image dimensions
     resize_size = get_image_resize_size(cfg)
@@ -166,7 +179,12 @@ def eval_libero(cfg: GenerateConfig) -> None:
             )
 
         # Initialize LIBERO environment and task description
-        env, task_description = get_libero_env(task, cfg.model_family, resolution=256)
+        env, task_description = get_libero_env(
+            task,
+            cfg.model_family,
+            resolution=256,
+            camera_name=cfg.camera_name,
+        )
 
         try:
             # Start episodes
@@ -208,8 +226,8 @@ def eval_libero(cfg: GenerateConfig) -> None:
                             continue
 
                         # Get model input image and a human-viewable rollout frame separately.
-                        img = get_libero_image(obs, resize_size)
-                        rollout_img = get_libero_rollout_frame(obs)
+                        img = get_libero_image(obs, resize_size, cfg.camera_name)
+                        rollout_img = get_libero_rollout_frame(obs, cfg.camera_name)
 
                         # Save the corrected environment frame for replay video.
                         replay_images.append(rollout_img)
@@ -262,6 +280,7 @@ def eval_libero(cfg: GenerateConfig) -> None:
                     total_episodes,
                     success=done,
                     task_description=task_description,
+                    camera_name=cfg.camera_name,
                     task_name=task.name,
                     task_suite_name=cfg.task_suite_name,
                     rollout_root_dir=cfg.rollout_root_dir,
