@@ -28,4 +28,7 @@ torchrun \
   --camera_name leftview \
   --wandb_project openvla-libero-leftview \
   --run_root_dir /opt/liutong/openvla-runs/leftview \
-  --adapter_tmp_dir /opt/liutong/openvla-adapter-tmp/leftview
+  --adapter_tmp_dir /opt/liutong/openvla-adapter-tmp/leftview \
+  --batch_size 4 \
+  --grad_accumulation_steps 2 \
+  --max_steps 40000

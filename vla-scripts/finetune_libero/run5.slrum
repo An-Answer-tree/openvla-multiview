@@ -28,4 +28,7 @@ torchrun \
   --camera_name backview \
   --wandb_project openvla-libero-backview \
   --run_root_dir /opt/liutong/openvla-runs/backview \
-  --adapter_tmp_dir /opt/liutong/openvla-adapter-tmp/backview
+  --adapter_tmp_dir /opt/liutong/openvla-adapter-tmp/backview \
+  --batch_size 4 \
+  --grad_accumulation_steps 2 \
+  --max_steps 40000

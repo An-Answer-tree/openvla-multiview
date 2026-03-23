@@ -28,4 +28,7 @@ torchrun \
   --camera_name topview \
   --wandb_project openvla-libero-topview \
   --run_root_dir /opt/liutong/openvla-runs/topview \
-  --adapter_tmp_dir /opt/liutong/openvla-adapter-tmp/topview
+  --adapter_tmp_dir /opt/liutong/openvla-adapter-tmp/topview \
+  --batch_size 4 \
+  --grad_accumulation_steps 2 \
+  --max_steps 40000
