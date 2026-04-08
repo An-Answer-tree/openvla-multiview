@@ -25,7 +25,7 @@ torchrun \
   --nnodes=1 \
   --nproc-per-node=2 \
   vla-scripts/finetune_libero/finetune.py \
-  --camera_name topview \
+  --camera_names "[topview]" \
   --wandb_project openvla-libero-topview \
   --run_root_dir /opt/liutong/openvla-runs/topview \
   --adapter_tmp_dir /opt/liutong/openvla-adapter-tmp/topview \

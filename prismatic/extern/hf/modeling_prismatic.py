@@ -111,8 +111,32 @@ class PrismaticVisionBackbone(nn.Module):
                 if isinstance(module, LayerScale):
                     ls_apply_patch(module)
 
-    def forward(self, pixel_values: torch.Tensor) -> torch.Tensor:
-        """Run image (`pixel_values`) through featurizer; if channel-stacked, then dispatch and sequence stack."""
+    @property
+    def num_patches(self) -> int:
+        """Returns the number of patches emitted for a single view."""
+        if self.use_fused_vision_backbone:
+            assert self.featurizer.patch_embed.num_patches == self.fused_featurizer.patch_embed.num_patches
+        return self.featurizer.patch_embed.num_patches
+
+    def get_num_patches_for_pixel_values(self, pixel_values: Union[torch.Tensor, Dict[str, torch.Tensor]]) -> int:
+        """Returns the number of visual tokens produced per sample."""
+        if isinstance(pixel_values, dict):
+            if not pixel_values:
+                raise ValueError("Expected `pixel_values` dictionary to be non-empty.")
+            pixel_values = next(iter(pixel_values.values()))
+
+        if pixel_values.ndim == 4:
+            return self.num_patches
+        if pixel_values.ndim == 5:
+            return int(pixel_values.shape[1]) * self.num_patches
+
+        raise ValueError(
+            "Unsupported `pixel_values` rank for patch counting: "
+            f"{pixel_values.ndim} with shape {tuple(pixel_values.shape)}"
+        )
+
+    def _forward_single_or_fused(self, pixel_values: torch.Tensor) -> torch.Tensor:
+        """Extracts patch features for a flattened batch of single-view inputs."""
         if not self.use_fused_vision_backbone:
             return self.featurizer(pixel_values)
 
@@ -121,6 +145,26 @@ class PrismaticVisionBackbone(nn.Module):
         patches, patches_fused = self.featurizer(img), self.fused_featurizer(img_fused)
 
         return torch.cat([patches, patches_fused], dim=2)
+
+    def forward(self, pixel_values: torch.Tensor) -> torch.Tensor:
+        """Runs vision featurization, flattening and restoring an optional view dimension."""
+        if pixel_values.ndim == 4:
+            return self._forward_single_or_fused(pixel_values)
+
+        if pixel_values.ndim != 5:
+            raise ValueError(
+                "Unsupported `pixel_values` rank for vision backbone forward: "
+                f"{pixel_values.ndim} with shape {tuple(pixel_values.shape)}"
+            )
+
+        batch_size, num_views = pixel_values.shape[:2]
+        flattened_pixel_values = pixel_values.reshape(batch_size * num_views, *pixel_values.shape[2:])
+        flattened_patch_features = self._forward_single_or_fused(flattened_pixel_values)
+        return flattened_patch_features.reshape(
+            batch_size,
+            num_views * flattened_patch_features.shape[1],
+            flattened_patch_features.shape[2],
+        )
 
 
 # === Prismatic Projector (nn.Module) Definitions ===

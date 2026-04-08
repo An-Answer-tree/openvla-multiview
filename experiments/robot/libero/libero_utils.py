@@ -6,7 +6,7 @@ import re
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass, field
 from functools import wraps
-from typing import Iterable, Optional
+from typing import Iterable, Optional, Sequence
 
 os.environ.setdefault("NUMBA_CACHE_DIR", "/tmp/numba_cache")
 
@@ -42,6 +42,7 @@ SUPPORTED_CAMERA_NAMES = (
     "leftbackview",
     "rightbackview",
 )
+DEFAULT_CAMERA_NAMES = SUPPORTED_CAMERA_NAMES
 FRONT_CAMERA_NAME = "frontview"
 FRONT_CAMERA_OBS_KEY = f"{FRONT_CAMERA_NAME}_image"
 CAMERA_NAME_TO_ENV_NAME = {
@@ -576,6 +577,38 @@ def _validate_camera_name(camera_name):
         )
 
 
+def resolve_camera_names(camera_names: Sequence[str]) -> tuple[str, ...]:
+    """Validates and normalizes an ordered sequence of logical camera names."""
+    if isinstance(camera_names, str):
+        normalized_camera_names = (camera_names,)
+    else:
+        normalized_camera_names = tuple(str(camera_name) for camera_name in camera_names)
+
+    if not normalized_camera_names:
+        raise ValueError("Expected at least one camera name in `camera_names`.")
+
+    invalid_camera_names = [
+        camera_name for camera_name in normalized_camera_names if camera_name not in SUPPORTED_CAMERA_NAMES
+    ]
+    if invalid_camera_names:
+        raise ValueError(
+            f"Unsupported camera_name values {invalid_camera_names}. "
+            f"Choose from: {', '.join(SUPPORTED_CAMERA_NAMES)}"
+        )
+
+    seen_camera_names = set()
+    duplicate_camera_names = []
+    for camera_name in normalized_camera_names:
+        if camera_name in seen_camera_names and camera_name not in duplicate_camera_names:
+            duplicate_camera_names.append(camera_name)
+        seen_camera_names.add(camera_name)
+
+    if duplicate_camera_names:
+        raise ValueError(f"Duplicate camera_name values are not allowed: {duplicate_camera_names}")
+
+    return normalized_camera_names
+
+
 def _get_camera_image(obs, camera_name):
     """Returns an RGB observation frame for the requested logical camera name."""
     _validate_camera_name(camera_name)
@@ -629,10 +662,18 @@ def compose_rollout_frame(left_frame, right_frame, left_label, right_label):
     return np.asarray(labeled, dtype=np.uint8)
 
 
-def get_libero_env(task, model_family, resolution=256, camera_name="agentview"):
+def get_libero_env(
+    task,
+    model_family,
+    resolution=256,
+    camera_name="agentview",
+    camera_names: Optional[Sequence[str]] = None,
+):
     """Initializes and returns the LIBERO environment, along with the task description."""
-    _validate_camera_name(camera_name)
-    if camera_name != "agentview":
+    resolved_camera_names = (
+        resolve_camera_names(camera_names) if camera_names is not None else resolve_camera_names((camera_name,))
+    )
+    if any(camera_name != "agentview" for camera_name in resolved_camera_names):
         _install_multiview_camera_setup_hooks()
 
     task_description = task.language
@@ -642,7 +683,7 @@ def get_libero_env(task, model_family, resolution=256, camera_name="agentview"):
             CAMERA_NAME_TO_ENV_NAME["agentview"],
             FRONT_CAMERA_NAME,
             "robot0_eye_in_hand",
-            CAMERA_NAME_TO_ENV_NAME[camera_name],
+            *[CAMERA_NAME_TO_ENV_NAME[camera_name] for camera_name in resolved_camera_names],
         ]
     )
     env_args = {
@@ -691,6 +732,15 @@ def get_libero_image(obs, resize_size, camera_name="agentview"):
     img = _get_camera_image(obs, camera_name)
     img = resize_image(img, resize_size)
     return img
+
+
+def get_libero_images(obs, resize_size, camera_names: Sequence[str] = DEFAULT_CAMERA_NAMES):
+    """Extracts an ordered sequence of model input images from observations."""
+    resolved_camera_names = resolve_camera_names(camera_names)
+    return np.stack(
+        [get_libero_image(obs, resize_size, camera_name=camera_name) for camera_name in resolved_camera_names],
+        axis=0,
+    )
 
 
 def get_libero_rollout_frame(obs, camera_name="agentview"):

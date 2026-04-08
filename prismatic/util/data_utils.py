@@ -5,7 +5,7 @@ General utilities and classes for facilitating data loading and collation.
 """
 
 from dataclasses import dataclass
-from typing import Callable, Dict, Sequence, Tuple
+from typing import Callable, Dict, Sequence, Tuple, Union
 
 import torch
 from torch.nn.utils.rnn import pad_sequence
@@ -24,6 +24,42 @@ def tree_map_with_key(fn: Callable, tree: dict, keys: Sequence = ()) -> dict:
     return {
         k: tree_map_with_key(fn, v, (*keys, k)) if isinstance(v, dict) else fn((*keys, k), v) for k, v in tree.items()
     }
+
+
+def _get_pixel_values_reference_tensor(pixel_values: Union[torch.Tensor, Dict[str, torch.Tensor]]) -> torch.Tensor:
+    """Returns a representative pixel-values tensor for shape inspection."""
+    if isinstance(pixel_values, torch.Tensor):
+        return pixel_values
+
+    if isinstance(pixel_values, dict):
+        if not pixel_values:
+            raise ValueError("Expected `pixel_values` dictionary to be non-empty.")
+        return next(iter(pixel_values.values()))
+
+    raise ValueError(f"Unsupported `pixel_values` type = {type(pixel_values)}")
+
+
+def get_num_views(pixel_values: Union[torch.Tensor, Dict[str, torch.Tensor]]) -> int:
+    """Infers the number of views encoded in a batch of pixel values."""
+    reference_pixel_values = _get_pixel_values_reference_tensor(pixel_values)
+
+    if reference_pixel_values.ndim in {3, 4}:
+        return 1
+    if reference_pixel_values.ndim == 5:
+        return int(reference_pixel_values.shape[1])
+
+    raise ValueError(
+        "Unsupported `pixel_values` rank for view inference: "
+        f"{reference_pixel_values.ndim} with shape {tuple(reference_pixel_values.shape)}"
+    )
+
+
+def get_num_visual_tokens(
+    pixel_values: Union[torch.Tensor, Dict[str, torch.Tensor]],
+    num_patches_per_view: int,
+) -> int:
+    """Computes the number of visual tokens inserted per sample."""
+    return get_num_views(pixel_values) * int(num_patches_per_view)
 
 
 @dataclass

@@ -25,7 +25,7 @@ torchrun \
   --nnodes=1 \
   --nproc-per-node=2 \
   vla-scripts/finetune_libero/finetune.py \
-  --camera_name rightbackview \
+  --camera_names "[rightbackview]" \
   --wandb_project openvla-libero-rightbackview \
   --run_root_dir /opt/liutong/openvla-runs/rightbackview \
   --adapter_tmp_dir /opt/liutong/openvla-adapter-tmp/rightbackview \

@@ -23,7 +23,11 @@ from prismatic.overwatch import initialize_overwatch
 from prismatic.training.metrics import Metrics, VLAMetrics
 from prismatic.util import check_bloat16_supported
 from prismatic.util.batching_utils import SplitModalitySampler
-from prismatic.util.data_utils import PaddedCollatorForActionPrediction, PaddedCollatorForLanguageModeling
+from prismatic.util.data_utils import (
+    PaddedCollatorForActionPrediction,
+    PaddedCollatorForLanguageModeling,
+    get_num_visual_tokens,
+)
 from prismatic.vla.action_tokenizer import ActionTokenizer
 
 # Initialize Overwatch =>> Wraps `logging.Logger`
@@ -303,15 +307,17 @@ class TrainingStrategy(ABC):
                 # === Compute Action Token Accuracy & L1 Loss ===
 
                 # To compute action token accuracy, we need to identify the locations of the action tokens
-                # in both `output.logits` and `batch["labels"]`. We know that when "right" padding, we
-                # insert `self.vlm.vision_backbone.num_patches` at index 1.
+                # in both `output.logits` and `batch["labels"]`. When "right" padding, the multimodal
+                # forward inserts one contiguous block of visual tokens after BOS, whose length depends on
+                # both the per-view patch count and the number of views encoded in `pixel_values`.
                 #
                 # Computing `action_prediction_accuracy` is then pretty straightforward:
                 #   1) Extract "aligned" predictions & labels
                 #   2) Compute boolean "mask" where "labels > 2" (where 2 is ID for `EOS_TOKEN`)
                 #           => If masking out EOS, then it's just "labels != -100 (IGNORE_INDEX)
                 #   3) Compute masked accuracy as `(preds == logits) & mask` --> sum/divide by # unmasked!
-                action_preds = output.logits[:, self.vlm.vision_backbone.num_patches : -1].argmax(dim=2)
+                num_visual_tokens = get_num_visual_tokens(batch["pixel_values"], self.vlm.vision_backbone.num_patches)
+                action_preds = output.logits[:, num_visual_tokens : -1].argmax(dim=2)
                 action_gt = batch["labels"][:, 1:].to(action_preds.device)
                 mask = action_gt > action_tokenizer.action_token_begin_idx
 

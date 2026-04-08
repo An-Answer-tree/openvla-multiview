@@ -9,9 +9,9 @@ import os
 import random
 import sys
 from collections import deque
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional
+from typing import List, Optional
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(REPO_ROOT) not in sys.path:
@@ -36,12 +36,12 @@ from prismatic.extern.hf.configuration_prismatic import OpenVLAConfig
 from prismatic.extern.hf.modeling_prismatic import OpenVLAForActionPrediction
 from prismatic.extern.hf.processing_prismatic import PrismaticImageProcessor, PrismaticProcessor
 from prismatic.models.backbones.llm.prompting import PurePromptBuilder, VicunaV15ChatPromptBuilder
-from prismatic.util.data_utils import PaddedCollatorForActionPrediction
+from prismatic.util.data_utils import PaddedCollatorForActionPrediction, get_num_visual_tokens
 from prismatic.vla.action_tokenizer import ActionTokenizer
 from prismatic.vla.datasets import RLDSBatchTransform
 from prismatic.vla.datasets.rlds.utils.data_utils import save_dataset_statistics
 
-from camera_views import CAMERA_VIEW_MAP, SUPPORTED_CAMERA_NAMES
+from camera_views import DEFAULT_CAMERA_NAMES, get_camera_views, resolve_camera_names
 from dataset import LiberoMultiviewDataset
 
 # Sane Defaults
@@ -56,16 +56,16 @@ class FinetuneConfig:
     # Directory Paths
     data_root_dir: Path = Path("/mnt/HDD-6940GB/Dataset/LIBERO-datasets-multiview-cameraINFO-double-backsideview") # Path to multiview LIBERO root
     dataset_name: str = "libero_spatial"                                            # LIBERO benchmark directory name
-    camera_name: str = "agentview"                                                  # One of: agentview, topview, leftview, rightview, backview, leftbackview, rightbackview
+    camera_names: List[str] = field(default_factory=lambda: list(DEFAULT_CAMERA_NAMES))  # Ordered camera names to include per transition
     run_root_dir: Path = Path("runs")                                               # Path to directory to store logs & checkpoints
     adapter_tmp_dir: Path = Path("adapter-tmp")                                     # Temporary directory for LoRA weights before fusing
 
     # Fine-tuning Parameters
-    batch_size: int = 4                                                            # Fine-tuning batch size
+    batch_size: int = 1                                                            # Fine-tuning batch size
     max_steps: int = 200_000                                                        # Max number of fine-tuning steps
     save_steps: int = 5000                                                          # Interval for checkpoint saving
     learning_rate: float = 5e-4                                                     # Fine-tuning learning rate
-    grad_accumulation_steps: int = 4                                                # Gradient accumulation steps
+    grad_accumulation_steps: int = 16                                                # Gradient accumulation steps
     image_aug: bool = True                                                          # Whether to train with image augmentations
     shuffle_buffer_size: int = 100_000                                              # Dataloader shuffle buffer size
     seed: int = 7                                                                   # Global experiment seed
@@ -79,7 +79,7 @@ class FinetuneConfig:
     use_quantization: bool = False                                                  # Whether to 4-bit quantize VLA for LoRA fine-tuning
 
     # Tracking Parameters
-    wandb_project: str = "openvla-frontview-test"                                                  # Name of W&B project to log to
+    wandb_project: str = "openvla-7view"                                                  # Name of W&B project to log to
     wandb_entity: str = "szliutong-wuhan-university"                                # Name of entity to log under
     run_id_note: Optional[str] = None                                               # Extra note for logging, Weights & Biases
     # fmt: on
@@ -87,16 +87,12 @@ class FinetuneConfig:
 
 @draccus.wrap()
 def finetune(cfg: FinetuneConfig) -> None:
-    if cfg.camera_name not in CAMERA_VIEW_MAP:
-        raise ValueError(
-            f"Unsupported camera_name `{cfg.camera_name}`. "
-            f"Choose from: {', '.join(SUPPORTED_CAMERA_NAMES)}"
-        )
-    camera_view = CAMERA_VIEW_MAP[cfg.camera_name]
+    camera_names = resolve_camera_names(cfg.camera_names)
+    camera_views = get_camera_views(camera_names)
 
     print(
         f"Fine-tuning OpenVLA Model `{cfg.vla_path}` on LIBERO benchmark `{cfg.dataset_name}` "
-        f"with camera `{cfg.camera_name}` -> `{camera_view}`"
+        f"with cameras `{list(camera_names)}` -> `{list(camera_views)}`"
     )
 
     random.seed(cfg.seed)
@@ -111,7 +107,7 @@ def finetune(cfg: FinetuneConfig) -> None:
 
     exp_id = (
         f"{cfg.vla_path.split('/')[-1]}+{cfg.dataset_name}"
-        f"+cam-{cfg.camera_name}"
+        f"+cam-{'+'.join(camera_names)}"
         f"+b{cfg.batch_size * cfg.grad_accumulation_steps}"
         f"+lr-{cfg.learning_rate}"
         f"+seed-{cfg.seed}"
@@ -140,13 +136,14 @@ def finetune(cfg: FinetuneConfig) -> None:
     AutoProcessor.register(OpenVLAConfig, PrismaticProcessor)
     AutoModelForVision2Seq.register(OpenVLAConfig, OpenVLAForActionPrediction)
 
-    processor = AutoProcessor.from_pretrained(cfg.vla_path, trust_remote_code=True)
+    # Use the locally registered OpenVLA classes so multiview patches in this repo
+    # are applied instead of the cached Hub implementation.
+    processor = AutoProcessor.from_pretrained(cfg.vla_path)
     vla = AutoModelForVision2Seq.from_pretrained(
         cfg.vla_path,
         torch_dtype=torch.bfloat16,
         quantization_config=quantization_config,
         low_cpu_mem_usage=True,
-        trust_remote_code=True,
     )
 
     if cfg.use_quantization:
@@ -165,7 +162,11 @@ def finetune(cfg: FinetuneConfig) -> None:
         vla = get_peft_model(vla, lora_config)
         vla.print_trainable_parameters()
 
-    vla = DDP(vla, device_ids=[device_id], find_unused_parameters=True, gradient_as_bucket_view=True)
+    use_ddp = distributed_state.num_processes > 1
+    if use_ddp:
+        vla = DDP(vla, device_ids=[device_id], find_unused_parameters=True, gradient_as_bucket_view=True)
+
+    vla_module = vla.module if use_ddp else vla
 
     trainable_params = [param for param in vla.parameters() if param.requires_grad]
     optimizer = AdamW(trainable_params, lr=cfg.learning_rate)
@@ -181,7 +182,7 @@ def finetune(cfg: FinetuneConfig) -> None:
         cfg.data_root_dir,
         cfg.dataset_name,
         batch_transform,
-        camera_view=camera_view,
+        camera_views=camera_views,
         train=True,
         image_aug=cfg.image_aug,
         shuffle_buffer_size=cfg.shuffle_buffer_size,
@@ -228,7 +229,8 @@ def finetune(cfg: FinetuneConfig) -> None:
             normalized_loss = loss / cfg.grad_accumulation_steps
             normalized_loss.backward()
 
-            action_logits = output.logits[:, vla.module.vision_backbone.featurizer.patch_embed.num_patches : -1]
+            num_visual_tokens = get_num_visual_tokens(batch["pixel_values"], vla_module.vision_backbone.num_patches)
+            action_logits = output.logits[:, num_visual_tokens : -1]
             action_preds = action_logits.argmax(dim=2)
             action_gt = batch["labels"][:, 1:].to(action_preds.device)
             mask = action_gt > action_tokenizer.action_token_begin_idx
@@ -273,16 +275,16 @@ def finetune(cfg: FinetuneConfig) -> None:
                     print(f"Saving Model Checkpoint for Step {gradient_step_idx}")
                     save_dir = adapter_dir if cfg.use_lora else run_dir
                     processor.save_pretrained(run_dir)
-                    vla.module.save_pretrained(save_dir)
+                    vla_module.save_pretrained(save_dir)
 
-                dist.barrier()
+                if use_ddp:
+                    dist.barrier()
 
                 if cfg.use_lora:
                     base_vla = AutoModelForVision2Seq.from_pretrained(
                         cfg.vla_path,
                         torch_dtype=torch.bfloat16,
                         low_cpu_mem_usage=True,
-                        trust_remote_code=True,
                     )
                     merged_vla = PeftModel.from_pretrained(base_vla, adapter_dir)
                     merged_vla = merged_vla.merge_and_unload()
@@ -298,7 +300,8 @@ def finetune(cfg: FinetuneConfig) -> None:
                             merged_vla.save_pretrained(checkpoint_dir)
                             print(f"Saved Model Checkpoint for Step {gradient_step_idx} at: {checkpoint_dir}")
 
-                dist.barrier()
+                if use_ddp:
+                    dist.barrier()
 
             if gradient_step_idx == cfg.max_steps:
                 print(f"Max step {cfg.max_steps} reached! Stopping training...")

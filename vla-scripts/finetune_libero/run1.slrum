@@ -25,7 +25,7 @@ torchrun \
   --nnodes=1 \
   --nproc-per-node=2 \
   vla-scripts/finetune_libero/finetune.py \
-  --camera_name agentview \
+  --camera_names "[agentview]" \
   --wandb_project openvla-libero-agentview \
   --run_root_dir /opt/liutong/openvla-runs/agentview/test \
   --adapter_tmp_dir /opt/liutong/openvla-adapter-tmp/agentview/test \

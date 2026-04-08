@@ -35,10 +35,27 @@ class RLDSBatchTransform:
     prompt_builder_fn: Type[PromptBuilder]
     predict_stop_token: bool = True
 
+    def _transform_multi_view_images(self, images: np.ndarray) -> Any:
+        """Applies the image transform to a sequence of view images."""
+        transformed_images = [
+            self.image_transform(Image.fromarray(np.asarray(image, dtype=np.uint8))) for image in images
+        ]
+        first_transformed_image = transformed_images[0]
+
+        if isinstance(first_transformed_image, torch.Tensor):
+            return torch.stack(transformed_images)
+
+        if isinstance(first_transformed_image, dict):
+            return {
+                key: torch.stack([transformed_image[key] for transformed_image in transformed_images])
+                for key in first_transformed_image
+            }
+
+        raise ValueError(f"Unsupported transformed image type `{type(first_transformed_image)}`")
+
     def __call__(self, rlds_batch: Dict[str, Any]) -> Dict[str, Any]:
         """Converts a RLDS batch to the format expected by the OpenVLA collator/models."""
         dataset_name, action = rlds_batch["dataset_name"], rlds_batch["action"][0]
-        img = Image.fromarray(rlds_batch["observation"]["image_primary"][0])
         lang = rlds_batch["task"]["language_instruction"].decode().lower()
 
         # Construct Chat-based Prompt =>> Input is default query + language instruction, output are the action tokens
@@ -57,7 +74,16 @@ class RLDSBatchTransform:
         # Tensorize =>> Run Image Transform to get `pixel_values` =>> Return
         #   =>> IMPORTANT :: IF WE'RE USING HF LLM.forward(..., labels=labels), SHIFTING HAPPENS _INSIDE_ MODEL!
         input_ids, labels = torch.tensor(input_ids), torch.tensor(labels)
-        pixel_values = self.image_transform(img)
+        if "images" in rlds_batch["observation"]:
+            images = np.asarray(rlds_batch["observation"]["images"])
+            if images.ndim == 5:
+                images = images[0]
+            elif images.ndim != 4:
+                raise ValueError(f"Expected `observation['images']` to have rank 4 or 5, got {images.shape}")
+            pixel_values = self._transform_multi_view_images(images)
+        else:
+            img = Image.fromarray(rlds_batch["observation"]["image_primary"][0])
+            pixel_values = self.image_transform(img)
 
         # [CRITICAL] We do not want to take the loss for anything but the predicted action tokens!
         labels[: -(len(action) + 1)] = IGNORE_INDEX

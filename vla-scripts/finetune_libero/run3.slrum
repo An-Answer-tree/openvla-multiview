@@ -25,7 +25,7 @@ torchrun \
   --nnodes=1 \
   --nproc-per-node=2 \
   vla-scripts/finetune_libero/finetune.py \
-  --camera_name leftview \
+  --camera_names "[leftview]" \
   --wandb_project openvla-libero-leftview \
   --run_root_dir /opt/liutong/openvla-runs/leftview \
   --adapter_tmp_dir /opt/liutong/openvla-adapter-tmp/leftview \

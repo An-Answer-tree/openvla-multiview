@@ -25,7 +25,7 @@ torchrun \
   --nnodes=1 \
   --nproc-per-node=2 \
   vla-scripts/finetune_libero/finetune.py \
-  --camera_name backview \
+  --camera_names "[backview]" \
   --wandb_project openvla-libero-backview \
   --run_root_dir /opt/liutong/openvla-runs/backview \
   --adapter_tmp_dir /opt/liutong/openvla-adapter-tmp/backview \

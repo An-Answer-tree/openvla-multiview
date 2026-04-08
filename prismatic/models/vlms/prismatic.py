@@ -35,6 +35,41 @@ overwatch = initialize_overwatch(__name__)
 IGNORE_INDEX = -100
 
 
+def _flatten_multiview_pixel_values(
+    pixel_values: Union[torch.Tensor, Dict[str, torch.Tensor]],
+) -> tuple[Union[torch.Tensor, Dict[str, torch.Tensor]], int]:
+    """Flattens an optional view dimension into the batch dimension."""
+    if isinstance(pixel_values, dict):
+        if not pixel_values:
+            raise ValueError("Expected `pixel_values` dictionary to be non-empty.")
+
+        reference_pixel_values = next(iter(pixel_values.values()))
+        if reference_pixel_values.ndim == 4:
+            return pixel_values, 1
+        if reference_pixel_values.ndim != 5:
+            raise ValueError(
+                "Unsupported `pixel_values` rank for multiview flattening: "
+                f"{reference_pixel_values.ndim} with shape {tuple(reference_pixel_values.shape)}"
+            )
+
+        num_views = int(reference_pixel_values.shape[1])
+        flattened_pixel_values = {
+            key: value.reshape(value.shape[0] * num_views, *value.shape[2:]) for key, value in pixel_values.items()
+        }
+        return flattened_pixel_values, num_views
+
+    if pixel_values.ndim == 4:
+        return pixel_values, 1
+    if pixel_values.ndim != 5:
+        raise ValueError(
+            "Unsupported `pixel_values` rank for multiview flattening: "
+            f"{pixel_values.ndim} with shape {tuple(pixel_values.shape)}"
+        )
+
+    num_views = int(pixel_values.shape[1])
+    return pixel_values.reshape(pixel_values.shape[0] * num_views, *pixel_values.shape[2:]), num_views
+
+
 class PrismaticVLM(VLM):
     def __init__(
         self,
@@ -367,9 +402,18 @@ class PrismaticVLM(VLM):
         # Run Visual Feature Extraction
         with torch.set_grad_enabled(self.vision_backbone_requires_grad):
             if isinstance(pixel_values, dict):
-                patch_features = self.vision_backbone({k: pixel_values[k][multimodal_indices] for k in pixel_values})
+                selected_pixel_values = {k: pixel_values[k][multimodal_indices] for k in pixel_values}
             else:
-                patch_features = self.vision_backbone(pixel_values[multimodal_indices])
+                selected_pixel_values = pixel_values[multimodal_indices]
+
+            flattened_pixel_values, num_views = _flatten_multiview_pixel_values(selected_pixel_values)
+            patch_features = self.vision_backbone(flattened_pixel_values)
+            if num_views > 1:
+                patch_features = patch_features.reshape(
+                    len(multimodal_indices),
+                    num_views * patch_features.shape[1],
+                    patch_features.shape[2],
+                )
 
         # Projection Logic :: [bsz, num_patches, llm_embed_dim] =>> num_patches = (2 *) (256 + 1) for ViT-L + CLS
         projected_patch_embeddings = self.projector(patch_features)

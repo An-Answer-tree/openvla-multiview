@@ -40,7 +40,7 @@ from transformers.modeling_outputs import CausalLMOutputWithPast
 
 import wandb
 from prismatic.models.backbones.llm.prompting import PurePromptBuilder, VicunaV15ChatPromptBuilder
-from prismatic.util.data_utils import PaddedCollatorForActionPrediction
+from prismatic.util.data_utils import PaddedCollatorForActionPrediction, get_num_visual_tokens
 from prismatic.vla.action_tokenizer import ActionTokenizer
 from prismatic.vla.datasets import RLDSBatchTransform, RLDSDataset
 from prismatic.vla.datasets.rlds.utils.data_utils import save_dataset_statistics
@@ -154,13 +154,14 @@ def finetune(cfg: FinetuneConfig) -> None:
     AutoModelForVision2Seq.register(OpenVLAConfig, OpenVLAForActionPrediction)
 
     # Load OpenVLA Processor and Model using HF AutoClasses
-    processor = AutoProcessor.from_pretrained(cfg.vla_path, trust_remote_code=True)
+    # Use the locally registered OpenVLA classes so repo-side model patches take
+    # effect instead of loading the cached Hub implementation.
+    processor = AutoProcessor.from_pretrained(cfg.vla_path)
     vla = AutoModelForVision2Seq.from_pretrained(
         cfg.vla_path,
         torch_dtype=torch.bfloat16,
         quantization_config=quantization_config,
         low_cpu_mem_usage=True,
-        trust_remote_code=True,
     )
 
     # Device Placement =>> note that BitsAndBytes automatically handles for quantized training
@@ -267,7 +268,8 @@ def finetune(cfg: FinetuneConfig) -> None:
             normalized_loss.backward()
 
             # Compute Accuracy and L1 Loss for Logging
-            action_logits = output.logits[:, vla.module.vision_backbone.featurizer.patch_embed.num_patches : -1]
+            num_visual_tokens = get_num_visual_tokens(batch["pixel_values"], vla.module.vision_backbone.num_patches)
+            action_logits = output.logits[:, num_visual_tokens : -1]
             action_preds = action_logits.argmax(dim=2)
             action_gt = batch["labels"][:, 1:].to(action_preds.device)
             mask = action_gt > action_tokenizer.action_token_begin_idx
@@ -336,7 +338,9 @@ def finetune(cfg: FinetuneConfig) -> None:
                 #   =>> Note that merging is slow and can be done post-hoc to speed up training
                 if cfg.use_lora:
                     base_vla = AutoModelForVision2Seq.from_pretrained(
-                        cfg.vla_path, torch_dtype=torch.bfloat16, low_cpu_mem_usage=True, trust_remote_code=True
+                        cfg.vla_path,
+                        torch_dtype=torch.bfloat16,
+                        low_cpu_mem_usage=True,
                     )
                     merged_vla = PeftModel.from_pretrained(base_vla, adapter_dir)
                     merged_vla = merged_vla.merge_and_unload()

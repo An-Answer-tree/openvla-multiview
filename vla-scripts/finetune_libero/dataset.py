@@ -2,7 +2,7 @@ import json
 import os
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, Iterator, List, Optional
+from typing import Any, Dict, Iterator, List, Optional, Sequence
 
 import h5py
 import numpy as np
@@ -31,7 +31,7 @@ class LiberoMultiviewDataset(IterableDataset):
         data_root_dir: Path,
         benchmark_name: str,
         batch_transform,
-        camera_view: str = "agentview_rgb",
+        camera_views: Sequence[str] = ("agentview_rgb",),
         train: bool = True,
         image_aug: bool = False,
         shuffle_buffer_size: int = 100_000,
@@ -42,13 +42,16 @@ class LiberoMultiviewDataset(IterableDataset):
         self.data_root_dir = Path(data_root_dir)
         self.benchmark_name = benchmark_name
         self.batch_transform = batch_transform
-        self.camera_view = camera_view
+        self.camera_views = tuple(camera_views)
         self.train = train
         self.image_aug = image_aug
         self.shuffle_buffer_size = max(int(shuffle_buffer_size), 1)
         self.seed = seed
         self.repeat = repeat
         self.global_shuffle_across_ranks = global_shuffle_across_ranks
+
+        if not self.camera_views:
+            raise ValueError("Expected at least one camera view in `camera_views`.")
 
         self.dataset_dir = self._resolve_dataset_dir(self.data_root_dir, self.benchmark_name)
         self.trajectories, self.transitions, stats = self._index_dataset(self.dataset_dir)
@@ -116,8 +119,14 @@ class LiberoMultiviewDataset(IterableDataset):
                 for demo_key in sorted(data_group.keys()):
                     demo = data_group[demo_key]
                     obs_group = demo["obs"]
-                    if self.camera_view not in obs_group:
-                        raise KeyError(f"Camera view `{self.camera_view}` not found in {hdf5_path}:{demo_key}/obs")
+                    missing_camera_views = [
+                        camera_view for camera_view in self.camera_views if camera_view not in obs_group
+                    ]
+                    if missing_camera_views:
+                        raise KeyError(
+                            "Camera views "
+                            f"{missing_camera_views} not found in {hdf5_path}:{demo_key}/obs"
+                        )
 
                     raw_actions = np.asarray(demo["actions"], dtype=np.float32)
                     step_indices = self._get_kept_step_indices(raw_actions)
@@ -333,13 +342,21 @@ class LiberoMultiviewDataset(IterableDataset):
                     handle_cache[trajectory.file_path] = h5py.File(trajectory.file_path, "r")
 
                 demo = handle_cache[trajectory.file_path]["data"][trajectory.demo_key]
-                image = self._prepare_image(np.asarray(demo["obs"][self.camera_view][transition.step_idx]))
+                transition_images = []
+                for camera_view in self.camera_views:
+                    image = self._prepare_image(np.asarray(demo["obs"][camera_view][transition.step_idx]))
+                    transition_images.append(np.asarray(image, dtype=np.uint8))
+
+                stacked_images = np.stack(transition_images, axis=0)
                 action = self._standardize_action(np.asarray(demo["actions"][transition.step_idx], dtype=np.float32))
                 normalized_action = self._normalize_action(action)
                 batch = {
                     "dataset_name": self.benchmark_name,
                     "action": normalized_action[None, ...],
-                    "observation": {"image_primary": np.asarray(image)[None, ...]},
+                    "observation": {
+                        "image_primary": stacked_images[0][None, ...],
+                        "images": stacked_images[None, ...],
+                    },
                     "task": {"language_instruction": trajectory.instruction.encode("utf-8")},
                 }
                 yield self.batch_transform(batch)
