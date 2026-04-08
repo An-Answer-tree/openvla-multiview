@@ -1,12 +1,12 @@
 """Utils for evaluating policies in LIBERO simulation environments."""
 
-import importlib
 import math
 import os
 import re
-import sys
+import xml.etree.ElementTree as ET
+from dataclasses import dataclass, field
 from functools import wraps
-from pathlib import Path
+from typing import Iterable, Optional
 
 os.environ.setdefault("NUMBA_CACHE_DIR", "/tmp/numba_cache")
 
@@ -16,6 +16,7 @@ import tensorflow as tf
 from PIL import Image, ImageDraw
 from libero.libero import get_libero_path
 from libero.libero.envs import OffScreenRenderEnv
+from scipy.spatial.transform import Rotation
 
 from experiments.robot.robot_utils import (
     DATE,
@@ -23,7 +24,24 @@ from experiments.robot.robot_utils import (
 )
 
 
-SUPPORTED_CAMERA_NAMES = ("agentview", "topview", "leftview", "rightview", "backview")
+DEFAULT_OPERATION_CAMERA_BASE_NAME = "agentview"
+DEFAULT_OPERATION_CAMERA_NAMES = {
+    "top": "operation_topview",
+    "left": "operation_leftview",
+    "right": "operation_rightview",
+    "back": "operation_backview",
+    "left_back": "operation_leftbackview",
+    "right_back": "operation_rightbackview",
+}
+SUPPORTED_CAMERA_NAMES = (
+    "agentview",
+    "topview",
+    "leftview",
+    "rightview",
+    "backview",
+    "leftbackview",
+    "rightbackview",
+)
 FRONT_CAMERA_NAME = "frontview"
 FRONT_CAMERA_OBS_KEY = f"{FRONT_CAMERA_NAME}_image"
 CAMERA_NAME_TO_ENV_NAME = {
@@ -32,14 +50,36 @@ CAMERA_NAME_TO_ENV_NAME = {
     "leftview": "operation_leftview",
     "rightview": "operation_rightview",
     "backview": "operation_backview",
+    "leftbackview": "operation_leftbackview",
+    "rightbackview": "operation_rightbackview",
 }
 CAMERA_NAME_TO_OBS_KEY = {
     camera_name: f"{env_camera_name}_image"
     for camera_name, env_camera_name in CAMERA_NAME_TO_ENV_NAME.items()
 }
 
-_MULTIVIEW_CAMERA_TOOLS = None
 _MULTIVIEW_CAMERA_SETUP_HOOKS_INSTALLED = False
+
+
+@dataclass(frozen=True)
+class OperationCameraConfig:
+    """Configuration for generated fixed operation cameras."""
+
+    base_camera_name: str = DEFAULT_OPERATION_CAMERA_BASE_NAME
+    camera_names: dict[str, str] = field(
+        default_factory=lambda: dict(DEFAULT_OPERATION_CAMERA_NAMES)
+    )
+
+
+@dataclass(frozen=True)
+class CameraSpec:
+    """Description of a camera node injected into the MuJoCo arena."""
+
+    name: str
+    pos: np.ndarray
+    quat: np.ndarray
+    mode: str = "fixed"
+    fovy: Optional[str] = None
 
 
 def _dedupe_keep_order(values):
@@ -47,54 +87,441 @@ def _dedupe_keep_order(values):
     return list(dict.fromkeys(values))
 
 
-def _get_libero_repo_root():
-    """Resolves the local LIBERO repository root used for multiview helpers."""
-    if os.environ.get("LIBERO_ROOT"):
-        return Path(os.environ["LIBERO_ROOT"]).expanduser().resolve()
-    return Path(__file__).resolve().parents[4] / "LIBERO"
+def _parse_vector_attr(attr_value: Optional[str], dim: int, attr_name: str) -> np.ndarray:
+    """Parses a whitespace-separated XML attribute into a float vector."""
+
+    if attr_value is None:
+        raise ValueError(f"Missing camera attribute `{attr_name}` in XML")
+    values = np.asarray([float(value) for value in attr_value.split()], dtype=np.float64)
+    if values.shape[0] != dim:
+        raise ValueError(
+            f"Camera attribute `{attr_name}` must have {dim} numbers, got {values.shape[0]}"
+        )
+    return values
 
 
-def _load_multiview_camera_tools():
-    """Loads the shared multiview camera generation helpers from the LIBERO repo."""
-    global _MULTIVIEW_CAMERA_TOOLS
-    if _MULTIVIEW_CAMERA_TOOLS is not None:
-        return _MULTIVIEW_CAMERA_TOOLS
+def _camera_pose_from_element(
+    camera_elem: ET.Element,
+) -> tuple[np.ndarray, np.ndarray, Optional[str]]:
+    """Returns ``(pos, quat, fovy)`` from a camera XML element."""
 
-    libero_repo_root = _get_libero_repo_root()
-    scripts_dir = libero_repo_root / "scripts"
-    if not scripts_dir.is_dir():
-        raise FileNotFoundError(
-            f"Cannot find LIBERO multiview scripts under {scripts_dir}. "
-            "Set LIBERO_ROOT if the repo lives elsewhere."
+    pos = _parse_vector_attr(camera_elem.get("pos"), 3, "pos")
+    quat = _parse_vector_attr(camera_elem.get("quat", "1 0 0 0"), 4, "quat")
+    return pos, quat, camera_elem.get("fovy")
+
+
+def _normalize(vec: np.ndarray) -> np.ndarray:
+    """Normalizes a vector and raises if the vector length is zero."""
+
+    norm = np.linalg.norm(vec)
+    if norm <= 1e-12:
+        raise ValueError("Cannot normalize zero-length vector")
+    return vec / norm
+
+
+def _rotate_xy(vec: np.ndarray, degrees: float) -> np.ndarray:
+    """Rotates a vector around the world z-axis in the x-y plane."""
+
+    radians = np.deg2rad(degrees)
+    cos_v = np.cos(radians)
+    sin_v = np.sin(radians)
+    return np.array(
+        [
+            cos_v * vec[0] - sin_v * vec[1],
+            sin_v * vec[0] + cos_v * vec[1],
+            vec[2],
+        ],
+        dtype=np.float64,
+    )
+
+
+def _lookat_quat_wxyz(camera_pos: np.ndarray, target_pos: np.ndarray) -> np.ndarray:
+    """Constructs a MuJoCo wxyz quaternion for a look-at camera pose."""
+
+    forward = _normalize(target_pos - camera_pos)
+    z_axis = -forward
+
+    up_hint = np.array([0.0, 0.0, 1.0], dtype=np.float64)
+    x_axis = np.cross(up_hint, z_axis)
+    if np.linalg.norm(x_axis) <= 1e-8:
+        up_hint = np.array([0.0, 1.0, 0.0], dtype=np.float64)
+        x_axis = np.cross(up_hint, z_axis)
+
+    x_axis = _normalize(x_axis)
+    y_axis = _normalize(np.cross(z_axis, x_axis))
+    rot = np.column_stack([x_axis, y_axis, z_axis])
+
+    quat_xyzw = Rotation.from_matrix(rot).as_quat()
+    return np.array(
+        [quat_xyzw[3], quat_xyzw[0], quat_xyzw[1], quat_xyzw[2]],
+        dtype=np.float64,
+    )
+
+
+def _pitch_target_up(
+    camera_pos: np.ndarray,
+    target_pos: np.ndarray,
+    degrees: float,
+) -> np.ndarray:
+    """Rotates a camera target upward around the camera-local right axis."""
+
+    direction = np.asarray(target_pos, dtype=np.float64) - np.asarray(
+        camera_pos, dtype=np.float64
+    )
+    distance = float(np.linalg.norm(direction))
+    if distance <= 1e-12:
+        raise ValueError("Cannot pitch a zero-length camera direction")
+
+    direction = direction / distance
+    up_hint = np.array([0.0, 0.0, 1.0], dtype=np.float64)
+    right_axis = np.cross(direction, up_hint)
+    if np.linalg.norm(right_axis) <= 1e-8:
+        up_hint = np.array([0.0, 1.0, 0.0], dtype=np.float64)
+        right_axis = np.cross(direction, up_hint)
+    right_axis = _normalize(right_axis)
+
+    pitched_direction = Rotation.from_rotvec(
+        np.deg2rad(degrees) * right_axis
+    ).apply(direction)
+    return np.asarray(camera_pos, dtype=np.float64) + pitched_direction * distance
+
+
+def _advance_along_view(
+    camera_pos: np.ndarray,
+    target_pos: np.ndarray,
+    distance: float,
+) -> np.ndarray:
+    """Moves a camera forward along its current view direction."""
+
+    return np.asarray(camera_pos, dtype=np.float64) + _normalize(
+        np.asarray(target_pos, dtype=np.float64) - np.asarray(camera_pos, dtype=np.float64)
+    ) * float(distance)
+
+
+def _camera_center_from_pose(base_pos: np.ndarray, base_quat_wxyz: np.ndarray) -> np.ndarray:
+    """Approximates the look-at center from a camera world pose."""
+
+    quat_xyzw = np.array(
+        [base_quat_wxyz[1], base_quat_wxyz[2], base_quat_wxyz[3], base_quat_wxyz[0]],
+        dtype=np.float64,
+    )
+    base_forward = Rotation.from_quat(quat_xyzw).apply(np.array([0.0, 0.0, -1.0]))
+    base_radius = float(np.linalg.norm(base_pos))
+    if base_radius <= 1e-12:
+        base_radius = 1.0
+    return base_pos + base_forward * base_radius
+
+
+def _find_camera_element(
+    camera_map: dict[str, ET.Element],
+    candidate_names: Iterable[str],
+) -> Optional[ET.Element]:
+    """Finds the first existing camera element among candidate names."""
+
+    for name in candidate_names:
+        camera_elem = camera_map.get(name)
+        if camera_elem is not None:
+            return camera_elem
+    return None
+
+
+def _build_fixed_camera_spec(
+    name: str,
+    pos: np.ndarray,
+    target_pos: np.ndarray,
+    camera_fovy: Optional[str] = None,
+) -> CameraSpec:
+    """Builds a fixed camera spec that looks at ``target_pos``."""
+
+    return CameraSpec(
+        name=name,
+        pos=np.asarray(pos, dtype=np.float64),
+        quat=_lookat_quat_wxyz(np.asarray(pos, dtype=np.float64), target_pos),
+        fovy=camera_fovy,
+    )
+
+
+def _generate_operation_camera_specs(
+    root: ET.Element,
+    config: OperationCameraConfig,
+) -> list[CameraSpec]:
+    """Generates the fixed operation cameras around the inferred scene center."""
+
+    def build_back_corner_position(diagonal_rel: np.ndarray) -> np.ndarray:
+        """Builds one back-corner camera position."""
+
+        diagonal_pos = center + np.asarray(diagonal_rel, dtype=np.float64)
+        diagonal_xy = diagonal_pos[:2] - center[:2]
+        diagonal_xy_norm = float(np.linalg.norm(diagonal_xy))
+        if diagonal_xy_norm <= 1e-8:
+            diagonal_xy = np.array([1.0, 0.0], dtype=np.float64)
+            diagonal_xy_norm = 1.0
+
+        diagonal_dir = diagonal_xy / diagonal_xy_norm
+        diagonal_pos[:2] = center[:2] + diagonal_dir * back_horizontal_radius
+        diagonal_pos[:2] -= diagonal_dir * (0.95 * horizontal_radius)
+        diagonal_pos[2] = center[2] + 0.5 * (back_rel[2] + diagonal_rel[2])
+        diagonal_pos[2] += 0.42 * horizontal_radius
+        return diagonal_pos
+
+    def shift_lookat_lateral(
+        camera_pos: np.ndarray,
+        target_pos: np.ndarray,
+        distance: float,
+        side: str,
+    ) -> tuple[np.ndarray, np.ndarray]:
+        """Shifts a look-at camera pair sideways while preserving view direction."""
+
+        forward = _normalize(
+            np.asarray(target_pos, dtype=np.float64)
+            - np.asarray(camera_pos, dtype=np.float64)
+        )
+        up_hint = np.array([0.0, 0.0, 1.0], dtype=np.float64)
+        left_dir = np.cross(up_hint, forward)
+        if np.linalg.norm(left_dir) <= 1e-8:
+            up_hint = np.array([0.0, 1.0, 0.0], dtype=np.float64)
+            left_dir = np.cross(up_hint, forward)
+        left_dir = _normalize(left_dir)
+        if side == "right":
+            left_dir = -left_dir
+        shift = left_dir * float(distance)
+        return (
+            np.asarray(camera_pos, dtype=np.float64) + shift,
+            np.asarray(target_pos, dtype=np.float64) + shift,
         )
 
-    for import_path in (scripts_dir, libero_repo_root):
-        import_path_str = str(import_path)
-        if import_path_str not in sys.path:
-            sys.path.insert(0, import_path_str)
+    def shift_lookat_forward(
+        camera_pos: np.ndarray,
+        target_pos: np.ndarray,
+        distance: float,
+        direction: str,
+    ) -> tuple[np.ndarray, np.ndarray]:
+        """Shifts a look-at camera pair forward or backward."""
 
-    try:
-        config_module = importlib.import_module("multiview_collect_demo.config")
-        camera_injection_module = importlib.import_module("multiview_collect_demo.camera_injection")
-    except Exception as exc:
-        raise RuntimeError(
-            f"Failed to import LIBERO multiview camera helpers from {scripts_dir}: {exc}"
-        ) from exc
+        forward = _normalize(
+            np.asarray(target_pos, dtype=np.float64)
+            - np.asarray(camera_pos, dtype=np.float64)
+        )
+        if direction == "backward":
+            forward = -forward
+        shift = forward * float(distance)
+        return (
+            np.asarray(camera_pos, dtype=np.float64) + shift,
+            np.asarray(target_pos, dtype=np.float64) + shift,
+        )
 
-    _MULTIVIEW_CAMERA_TOOLS = (
-        config_module.OperationCameraConfig,
-        camera_injection_module,
+    camera_map = {
+        camera.get("name"): camera
+        for camera in root.iter("camera")
+        if camera.get("name") is not None
+    }
+
+    center_camera = _find_camera_element(
+        camera_map,
+        _dedupe_keep_order(
+            [
+                "frontview",
+                config.base_camera_name,
+                "agentview",
+                "birdview",
+                "sideview",
+            ]
+        ),
     )
-    return _MULTIVIEW_CAMERA_TOOLS
+    if center_camera is None:
+        raise ValueError(
+            "Cannot build operation cameras because no reference camera was found in XML"
+        )
+
+    center_pos, center_quat, _ = _camera_pose_from_element(center_camera)
+    center = _camera_center_from_pose(center_pos, center_quat)
+
+    fovy_camera = _find_camera_element(
+        camera_map,
+        _dedupe_keep_order(
+            [
+                "frontview",
+                "birdview",
+                "sideview",
+                config.base_camera_name,
+                "agentview",
+            ]
+        ),
+    )
+    camera_fovy = fovy_camera.get("fovy") if fovy_camera is not None else None
+
+    front_camera = _find_camera_element(
+        camera_map,
+        _dedupe_keep_order(
+            [
+                "frontview",
+                config.base_camera_name,
+                "agentview",
+            ]
+        ),
+    )
+    if front_camera is not None:
+        front_pos, _, _ = _camera_pose_from_element(front_camera)
+        front_rel = front_pos - center
+    else:
+        front_rel = np.array([1.0, 0.0, 1.2], dtype=np.float64)
+
+    if np.linalg.norm(front_rel[:2]) <= 1e-8:
+        front_rel = np.array(
+            [max(float(np.linalg.norm(front_rel)), 0.8), 0.0, max(front_rel[2], 1.0)],
+            dtype=np.float64,
+        )
+    horizontal_radius = max(np.linalg.norm(front_rel[:2]), 0.8)
+    front_dir = _normalize(np.array([front_rel[0], front_rel[1], 0.0], dtype=np.float64))
+    back_dir = -front_dir
+
+    side_camera = _find_camera_element(camera_map, ["sideview"])
+    # Keep the evaluation repo self-contained while matching the multiview dataset
+    # geometry: LIBERO's legacy `sideview` acts as the logical right-view reference.
+    if side_camera is not None:
+        side_pos, _, _ = _camera_pose_from_element(side_camera)
+        right_rel = side_pos - center
+    else:
+        right_rel = _rotate_xy(front_rel, 90.0)
+
+    top_camera = _find_camera_element(camera_map, ["birdview"])
+    if top_camera is not None:
+        top_pos, _, _ = _camera_pose_from_element(top_camera)
+        top_rel = top_pos - center
+    else:
+        horizontal_radius = max(
+            np.linalg.norm(front_rel[:2]),
+            np.linalg.norm(right_rel[:2]),
+            0.8,
+        )
+        top_rel = np.array(
+            [
+                -0.2 * horizontal_radius,
+                0.0,
+                max(abs(front_rel[2]) + horizontal_radius * 1.1, 1.8),
+            ],
+            dtype=np.float64,
+        )
+
+    left_rel = np.array([right_rel[0], -right_rel[1], right_rel[2]], dtype=np.float64)
+    if np.linalg.norm(left_rel[:2]) <= 1e-8:
+        left_rel = _rotate_xy(front_rel, -90.0)
+
+    back_rel = _rotate_xy(front_rel, 180.0)
+    back_horizontal_radius = max(np.linalg.norm(back_rel[:2]), 0.8)
+    left_back_rel = 0.5 * (back_rel + left_rel)
+    right_back_rel = 0.5 * (back_rel + right_rel)
+
+    side_target = center + front_dir * (0.32 * horizontal_radius)
+    side_target[2] -= 0.08 * horizontal_radius
+    top_pos = center + top_rel + front_dir * (0.36 * horizontal_radius)
+    top_pos[2] -= 0.30 * horizontal_radius
+    left_pos = center + left_rel
+    left_pos[2] += 0.26 * horizontal_radius
+    right_pos = center + right_rel
+    right_pos[2] += 0.26 * horizontal_radius
+    back_pos = center + back_rel - back_dir * (0.95 * horizontal_radius)
+    back_pos[2] += 0.42 * horizontal_radius
+    left_back_pos = build_back_corner_position(left_back_rel)
+    right_back_pos = build_back_corner_position(right_back_rel)
+    left_back_pos[2] -= 0.50
+    right_back_pos[2] -= 0.50
+    top_target = center.copy()
+    top_target[2] -= 0.60 * horizontal_radius
+    top_pos = top_pos + _normalize(top_target - top_pos) * (0.22 * horizontal_radius)
+    left_target = _pitch_target_up(left_pos, side_target, 0.0)
+    right_target = _pitch_target_up(right_pos, side_target, 0.0)
+    left_pos = _advance_along_view(left_pos, left_target, 0.18 * horizontal_radius)
+    right_pos = _advance_along_view(right_pos, right_target, 0.18 * horizontal_radius)
+    back_target = center.copy()
+    back_target[2] += 0.40 * horizontal_radius
+    back_target = _pitch_target_up(back_pos, back_target, 15.0)
+    left_back_target = center.copy()
+    left_back_target[2] += 0.40 * horizontal_radius
+    left_back_target = _pitch_target_up(left_back_pos, left_back_target, -50.0)
+    right_back_target = center.copy()
+    right_back_target[2] += 0.40 * horizontal_radius
+    right_back_target = _pitch_target_up(right_back_pos, right_back_target, -50.0)
+    left_back_pos, left_back_target = shift_lookat_lateral(
+        left_back_pos,
+        left_back_target,
+        0.60,
+        side="right",
+    )
+    left_back_pos, left_back_target = shift_lookat_forward(
+        left_back_pos,
+        left_back_target,
+        0.30,
+        direction="backward",
+    )
+    left_back_pos, left_back_target = shift_lookat_lateral(
+        left_back_pos,
+        left_back_target,
+        0.15,
+        side="left",
+    )
+    right_back_pos, right_back_target = shift_lookat_lateral(
+        right_back_pos,
+        right_back_target,
+        0.60,
+        side="left",
+    )
+    right_back_pos, right_back_target = shift_lookat_forward(
+        right_back_pos,
+        right_back_target,
+        0.30,
+        direction="backward",
+    )
+    right_back_pos, right_back_target = shift_lookat_lateral(
+        right_back_pos,
+        right_back_target,
+        0.15,
+        side="right",
+    )
+
+    return [
+        _build_fixed_camera_spec(
+            name=config.camera_names["top"],
+            pos=top_pos,
+            target_pos=top_target,
+            camera_fovy=camera_fovy,
+        ),
+        _build_fixed_camera_spec(
+            name=config.camera_names["left"],
+            pos=left_pos,
+            target_pos=left_target,
+            camera_fovy=camera_fovy,
+        ),
+        _build_fixed_camera_spec(
+            name=config.camera_names["right"],
+            pos=right_pos,
+            target_pos=right_target,
+            camera_fovy=camera_fovy,
+        ),
+        _build_fixed_camera_spec(
+            name=config.camera_names["back"],
+            pos=back_pos,
+            target_pos=back_target,
+            camera_fovy=camera_fovy,
+        ),
+        _build_fixed_camera_spec(
+            name=config.camera_names["left_back"],
+            pos=left_back_pos,
+            target_pos=left_back_target,
+            camera_fovy=camera_fovy,
+        ),
+        _build_fixed_camera_spec(
+            name=config.camera_names["right_back"],
+            pos=right_back_pos,
+            target_pos=right_back_target,
+            camera_fovy=camera_fovy,
+        ),
+    ]
 
 
 def _inject_operation_cameras_into_arena(mujoco_arena):
     """Adds the fixed multiview operation cameras to a LIBERO arena."""
-    operation_camera_config_cls, camera_injection_module = _load_multiview_camera_tools()
-    specs = camera_injection_module._generate_operation_camera_specs(
-        mujoco_arena.root,
-        operation_camera_config_cls(),
-    )
+    specs = _generate_operation_camera_specs(mujoco_arena.root, OperationCameraConfig())
     for spec in specs:
         camera_attribs = {"mode": spec.mode}
         if spec.fovy is not None:

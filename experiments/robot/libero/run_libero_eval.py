@@ -10,7 +10,7 @@ Usage:
         --model_family openvla \
         --pretrained_checkpoint <CHECKPOINT_PATH> \
         --task_suite_name [ libero_spatial | libero_object | libero_goal | libero_10 | libero_90 ] \
-        --camera_name [ agentview | topview | leftview | rightview | backview ] \
+        --camera_name [ agentview | topview | leftview | rightview | backview | leftbackview | rightbackview ] \
         --center_crop [ True | False ] \
         --run_id_note <OPTIONAL TAG TO INSERT INTO RUN ID FOR LOGGING> \
         --use_wandb [ True | False ] \
@@ -75,7 +75,7 @@ class GenerateConfig:
     # LIBERO environment-specific parameters
     #################################################################################################################
     task_suite_name: str = "libero_spatial"          # Task suite. Options: libero_spatial, libero_object, libero_goal, libero_10, libero_90
-    camera_name: str = "agentview"                   # Input camera. Options: agentview, topview, leftview, rightview, backview
+    camera_name: str = "agentview"                   # Input camera. Options: agentview, topview, leftview, rightview, backview, leftbackview, rightbackview
     num_steps_wait: int = 10                         # Number of steps to wait for objects to stabilize in sim
     num_trials_per_task: int = 50                    # Number of rollouts per task
 
