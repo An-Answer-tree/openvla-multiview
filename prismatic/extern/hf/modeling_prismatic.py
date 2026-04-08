@@ -215,6 +215,7 @@ class PrismaticCausalLMOutputWithPast(ModelOutput):
 
     # Additions for VLMs
     projector_features: Optional[torch.FloatTensor] = None
+    vision_features: Optional[torch.FloatTensor] = None
 
 
 class PrismaticPreTrainedModel(PreTrainedModel):
@@ -331,6 +332,125 @@ class PrismaticForConditionalGeneration(PrismaticPreTrainedModel):
 
         return updated_embeddings
 
+    def get_vision_features(self, pixel_values: torch.FloatTensor) -> torch.FloatTensor:
+        """Extracts visual patch features before the multimodal projector."""
+        return self.vision_backbone(pixel_values)
+
+    def get_projector_features(self, vision_features: torch.FloatTensor) -> torch.FloatTensor:
+        """Projects vision features into the language-model embedding space."""
+        return self.projector(vision_features)
+
+    def _forward_from_projected_patch_embeddings(
+        self,
+        input_ids: torch.LongTensor,
+        attention_mask: Optional[torch.Tensor],
+        projected_patch_embeddings: torch.FloatTensor,
+        labels: Optional[torch.LongTensor],
+        use_cache: Optional[bool],
+        output_attentions: Optional[bool],
+        output_hidden_states: Optional[bool],
+        return_dict: Optional[bool],
+    ) -> Union[Tuple, Any]:
+        """Runs the language model given projected patch embeddings."""
+        projected_patch_attention_mask = None
+        if attention_mask is not None:
+            projected_patch_attention_mask = torch.full(
+                (projected_patch_embeddings.shape[0], projected_patch_embeddings.shape[1]),
+                fill_value=True,
+                dtype=attention_mask.dtype,
+                device=attention_mask.device,
+            )
+
+        input_embeddings = self.get_input_embeddings()(input_ids)
+        multimodal_embeddings = torch.cat(
+            [input_embeddings[:, :1, :], projected_patch_embeddings, input_embeddings[:, 1:, :]],
+            dim=1,
+        )
+        multimodal_attention_mask = None
+        if attention_mask is not None:
+            multimodal_attention_mask = torch.cat(
+                [attention_mask[:, :1], projected_patch_attention_mask, attention_mask[:, 1:]],
+                dim=1,
+            )
+
+        multimodal_labels = None
+        if labels is not None:
+            projected_patch_labels = torch.full(
+                (projected_patch_embeddings.shape[0], projected_patch_embeddings.shape[1]),
+                fill_value=IGNORE_INDEX,
+                dtype=labels.dtype,
+                device=labels.device,
+            )
+            multimodal_labels = torch.cat([labels[:, :1], projected_patch_labels, labels[:, 1:]], dim=1)
+
+        return self.language_model(
+            input_ids=None,
+            attention_mask=multimodal_attention_mask,
+            position_ids=None,
+            past_key_values=None,
+            inputs_embeds=multimodal_embeddings,
+            labels=multimodal_labels,
+            use_cache=use_cache,
+            output_attentions=output_attentions,
+            output_hidden_states=output_hidden_states,
+            return_dict=return_dict,
+        )
+
+    def forward_from_vision_features(
+        self,
+        input_ids: torch.LongTensor,
+        attention_mask: Optional[torch.Tensor],
+        vision_features: torch.FloatTensor,
+        labels: Optional[torch.LongTensor] = None,
+        use_cache: Optional[bool] = None,
+        output_attentions: Optional[bool] = None,
+        output_hidden_states: Optional[bool] = None,
+        output_projector_features: Optional[bool] = None,
+        output_vision_features: Optional[bool] = None,
+        return_dict: Optional[bool] = None,
+    ) -> Union[Tuple, PrismaticCausalLMOutputWithPast]:
+        """Runs a multimodal forward pass from precomputed vision features."""
+        output_attentions = output_attentions if output_attentions is not None else self.config.output_attentions
+        output_hidden_states = (
+            output_hidden_states if output_hidden_states is not None else self.config.output_hidden_states
+        )
+        output_projector_features = output_projector_features if output_projector_features is not None else False
+        output_vision_features = output_vision_features if output_vision_features is not None else False
+        return_dict = return_dict if return_dict is not None else self.config.use_return_dict
+        use_cache = use_cache and not self.training
+
+        projected_patch_embeddings = self.get_projector_features(vision_features)
+        language_model_output = self._forward_from_projected_patch_embeddings(
+            input_ids=input_ids,
+            attention_mask=attention_mask,
+            projected_patch_embeddings=projected_patch_embeddings,
+            labels=labels,
+            use_cache=use_cache,
+            output_attentions=output_attentions,
+            output_hidden_states=output_hidden_states,
+            return_dict=return_dict,
+        )
+
+        if not return_dict:
+            extras = []
+            if output_projector_features:
+                extras.append(projected_patch_embeddings)
+            if output_vision_features:
+                extras.append(vision_features)
+            if extras:
+                return (*language_model_output, *extras)
+            return language_model_output
+
+        return PrismaticCausalLMOutputWithPast(
+            loss=language_model_output.loss,
+            logits=language_model_output.logits,
+            past_key_values=language_model_output.past_key_values,
+            hidden_states=language_model_output.hidden_states,
+            attentions=language_model_output.attentions,
+            projector_features=projected_patch_embeddings,
+            vision_features=vision_features if output_vision_features else None,
+        )
+
     # === Core Prismatic VLM `forward()` Logic ===
     def forward(
         self,
@@ -344,6 +464,7 @@ class PrismaticForConditionalGeneration(PrismaticPreTrainedModel):
         output_attentions: Optional[bool] = None,
         output_hidden_states: Optional[bool] = None,
         output_projector_features: Optional[bool] = None,
+        output_vision_features: Optional[bool] = None,
         return_dict: Optional[bool] = None,
     ) -> Union[Tuple, PrismaticCausalLMOutputWithPast]:
         """Run a forward pass through the VLM, returning a PrismaticCausalLMOutputWithPast instance."""
@@ -352,6 +473,7 @@ class PrismaticForConditionalGeneration(PrismaticPreTrainedModel):
             output_hidden_states if output_hidden_states is not None else self.config.output_hidden_states
         )
         output_projector_features = output_projector_features if output_projector_features is not None else False
+        output_vision_features = output_vision_features if output_vision_features is not None else False
         return_dict = return_dict if return_dict is not None else self.config.use_return_dict
 
         # Respect `use_cache` only if not training (even if `gradient_checkpointing` is off)
@@ -359,6 +481,7 @@ class PrismaticForConditionalGeneration(PrismaticPreTrainedModel):
 
         # Instantiate Placeholder for Projector Features
         projected_patch_embeddings = None
+        patch_features = None
 
         # Note :: We only support forward passes with the following cases:
         #   => Cached Generation :: (input_ids.shape[1] == 1) and (past_key_values is not None)
@@ -407,51 +530,14 @@ class PrismaticForConditionalGeneration(PrismaticPreTrainedModel):
             assert past_key_values is None, "Unexpected key `past_key_values` provided during language-only forward!"
 
             # Visual Feature Extraction
-            patch_features = self.vision_backbone(pixel_values)
+            patch_features = self.get_vision_features(pixel_values)
+            projected_patch_embeddings = self.get_projector_features(patch_features)
 
-            # Projection Logic =>> Update Attention Mask
-            projected_patch_embeddings = self.projector(patch_features)
-            projected_patch_attention_mask = None
-            if attention_mask is not None:
-                projected_patch_attention_mask = torch.full(
-                    (projected_patch_embeddings.shape[0], projected_patch_embeddings.shape[1]),
-                    fill_value=True,
-                    dtype=attention_mask.dtype,
-                    device=attention_mask.device,
-                )
-
-            # Get Input Embeddings (from Language Model Embeddings)
-            input_embeddings = self.get_input_embeddings()(input_ids)
-
-            # Build Multimodal Embeddings & Attention Mask =>> Prismatic defaults to inserting after <BOS> token (1:)
-            multimodal_embeddings = torch.cat(
-                [input_embeddings[:, :1, :], projected_patch_embeddings, input_embeddings[:, 1:, :]], dim=1
-            )
-            multimodal_attention_mask = None
-            if attention_mask is not None:
-                multimodal_attention_mask = torch.cat(
-                    [attention_mask[:, :1], projected_patch_attention_mask, attention_mask[:, 1:]], dim=1
-                )
-
-            # Build Labels (if specified) =>> Ignore Labels for Patch Embeddings
-            multimodal_labels = None
-            if labels is not None:
-                projected_patch_labels = torch.full(
-                    (projected_patch_embeddings.shape[0], projected_patch_embeddings.shape[1]),
-                    fill_value=IGNORE_INDEX,
-                    dtype=labels.dtype,
-                    device=labels.device,
-                )
-                multimodal_labels = torch.cat([labels[:, :1], projected_patch_labels, labels[:, 1:]], dim=1)
-
-            # Dispatch to Language Model
-            language_model_output = self.language_model(
-                input_ids=None,
-                attention_mask=multimodal_attention_mask,
-                position_ids=None,
-                past_key_values=None,
-                inputs_embeds=multimodal_embeddings,
-                labels=multimodal_labels,
+            language_model_output = self._forward_from_projected_patch_embeddings(
+                input_ids=input_ids,
+                attention_mask=attention_mask,
+                projected_patch_embeddings=projected_patch_embeddings,
+                labels=labels,
                 use_cache=use_cache,
                 output_attentions=output_attentions,
                 output_hidden_states=output_hidden_states,
@@ -476,8 +562,13 @@ class PrismaticForConditionalGeneration(PrismaticPreTrainedModel):
 
         # Unpack `language_model_output` and return PrismaticCausalLMOutputWithPast (or tuple if not `return_dict`)
         if not return_dict:
+            extras = []
             if output_projector_features and (projected_patch_embeddings is not None):
-                return *language_model_output, projected_patch_embeddings
+                extras.append(projected_patch_embeddings)
+            if output_vision_features and (patch_features is not None):
+                extras.append(patch_features)
+            if extras:
+                return (*language_model_output, *extras)
 
             return language_model_output
 
@@ -488,6 +579,7 @@ class PrismaticForConditionalGeneration(PrismaticPreTrainedModel):
             hidden_states=language_model_output.hidden_states,
             attentions=language_model_output.attentions,
             projector_features=projected_patch_embeddings,
+            vision_features=patch_features if output_vision_features else None,
         )
 
     # === GenerationMixin Methods ===
