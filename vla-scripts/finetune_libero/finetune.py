@@ -54,9 +54,9 @@ class FinetuneConfig:
     vla_path: str = "openvla/openvla-7b"                                           # Path to OpenVLA model
 
     # Directory Paths
-    data_root_dir: Path = Path("/mnt/HDD-6940GB/Dataset/LIBERO-datasets-multiview") # Path to multiview LIBERO root
+    data_root_dir: Path = Path("/mnt/HDD-6940GB/Dataset/LIBERO-datasets-multiview-cameraINFO-double-backsideview") # Path to multiview LIBERO root
     dataset_name: str = "libero_spatial"                                            # LIBERO benchmark directory name
-    camera_name: str = "agentview"                                                  # One of: agentview, topview, leftview, rightview, backview
+    camera_name: str = "agentview"                                                  # One of: agentview, topview, leftview, rightview, backview, leftbackview, rightbackview
     run_root_dir: Path = Path("runs")                                               # Path to directory to store logs & checkpoints
     adapter_tmp_dir: Path = Path("adapter-tmp")                                     # Temporary directory for LoRA weights before fusing
 
