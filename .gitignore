@@ -156,3 +156,4 @@ runs/
 adapter-tmp/
 runs_raw_data/
 adapter-tmp-raw-data/
+.codex
