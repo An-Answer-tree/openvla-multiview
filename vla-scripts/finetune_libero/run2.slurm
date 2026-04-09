@@ -6,7 +6,7 @@
 #SBATCH --cpus-per-task=50
 #SBATCH --mem=90G
 #SBATCH --time=2-00:00:00
-#SBATCH --output=/home/liutong/Projects/openvla/logs/%x-%j.log
+#SBATCH --output=/home/liutong/Projects/openvla-multiview/logs/%x-%j.log
 
 set -eo pipefail
 
@@ -16,7 +16,7 @@ conda activate openvla
 export http_proxy="http://localhost:7878"
 export https_proxy="http://localhost:7878"
 
-cd /home/liutong/Projects/openvla
+cd /home/liutong/Projects/openvla-multiview
 
 echo "[$(date '+%F %T')] job=${SLURM_JOB_ID:-N/A} node=$(hostname) gpus=2 camera=topview"
 
@@ -25,6 +25,7 @@ torchrun \
   --nnodes=1 \
   --nproc-per-node=2 \
   vla-scripts/finetune_libero/finetune.py \
+  --data_root_dir /opt/public/liutong/LIBERO-datasets-multiview-cameraINFO-double-backsideview \
   --camera_names "[topview]" \
   --wandb_project openvla-libero-topview \
   --run_root_dir /opt/liutong/openvla-runs/topview \
