@@ -10,6 +10,7 @@ import random
 import sys
 from collections import deque
 from dataclasses import dataclass, field
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence, Union
 
@@ -437,25 +438,21 @@ def _build_experiment_id(
     student_camera_names: Sequence[str],
 ) -> str:
     """Builds a readable experiment identifier."""
-    exp_id = (
-        f"distill+teacher-{cfg.teacher_path.split('/')[-1]}"
-        f"+student-{cfg.student_path.split('/')[-1]}"
-        f"+teacher-cam-{'+'.join(teacher_camera_names)}"
-        f"+student-cam-{'+'.join(student_camera_names)}"
-        f"+b{cfg.batch_size * cfg.grad_accumulation_steps}"
-        f"+lr-{cfg.learning_rate}"
-        f"+seed-{cfg.seed}"
-        f"+adapter-x{cfg.adapter_hidden_scale}"
-    )
-    if cfg.use_lora:
-        exp_id += f"+lora-r{cfg.lora_rank}+dropout-{cfg.lora_dropout}"
-    if cfg.use_quantization:
-        exp_id += "+q-4bit"
-    if cfg.run_id_note is not None:
-        exp_id += f"--{cfg.run_id_note}"
-    if cfg.image_aug:
-        exp_id += "--image_aug"
-    return exp_id
+    exp_id_parts = [
+        "distillation",
+        cfg.dataset_name,
+        f"teacher-{_summarize_teacher_cameras(teacher_camera_names)}",
+        f"student-{len(student_camera_names)}v",
+        datetime.now().strftime("%m%d-%H%M"),
+    ]
+    return "+".join(exp_id_parts)
+
+
+def _summarize_teacher_cameras(camera_names: Sequence[str]) -> str:
+    """Returns a compact identifier for the teacher camera setup."""
+    if len(camera_names) == 1:
+        return camera_names[0]
+    return f"{len(camera_names)}v"
 
 
 def _save_distillation_checkpoint(

@@ -5,7 +5,7 @@
 #SBATCH --gres=gpu:2
 #SBATCH --cpus-per-task=16
 #SBATCH --mem=64G
-#SBATCH --time=1-00:00:00
+#SBATCH --time=00-01:00:00
 #SBATCH --output=/home/liutong/Projects/openvla-multiview/logs/%x-%j.log
 #SBATCH --qos=debug
 
