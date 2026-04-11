@@ -15,6 +15,8 @@ conda activate openvla
 
 export http_proxy="http://localhost:7878"
 export https_proxy="http://localhost:7878"
+export TOKENIZERS_PARALLELISM=false
+export TF_ENABLE_ONEDNN_OPTS=0
 
 cd /home/liutong/Projects/openvla-multiview
 

@@ -6,7 +6,7 @@
 #SBATCH --cpus-per-task=25
 #SBATCH --mem=64G
 #SBATCH --time=2-00:00:00
-#SBATCH --output=/home/liutong/Projects/openvla/logs/%x-%j.log
+#SBATCH --output=/home/liutong/Projects/openvla-multiview/logs/%x-%j.log
 
 set -eo pipefail
 
@@ -15,9 +15,10 @@ conda activate openvla
 
 export http_proxy="http://localhost:7878"
 export https_proxy="http://localhost:7878"
-export LIBERO_ROOT="/home/liutong/Projects/lerobot-libero-NewViewCameras"
+export TOKENIZERS_PARALLELISM=false
+export TF_ENABLE_ONEDNN_OPTS=0
 
-cd /home/liutong/Projects/openvla
+cd /home/liutong/Projects/openvla-multiview
 
 python experiments/robot/libero/run_libero_eval.py \
     --pretrained_checkpoint "/opt/liutong/openvla-runs/rightview/openvla-7b+libero_spatial+cam-rightview+b8+lr-0.0005+seed-7+lora-r32+dropout-0.0--image_aug--40000_chkpt" \

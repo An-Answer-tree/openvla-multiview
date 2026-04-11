@@ -16,6 +16,7 @@ conda activate openvla
 export http_proxy="http://localhost:7878"
 export https_proxy="http://localhost:7878"
 export HF_HUB_OFFLINE=1
+export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 
 REPO_ROOT="/home/liutong/Projects/openvla-multiview"
 
@@ -29,9 +30,9 @@ DATASET_NAME="libero_spatial"
 WANDB_PROJECT="distillation-agentview-teacher"
 WANDB_ENTITY="szliutong-wuhan-university"
 
-BATCH_SIZE=4
+BATCH_SIZE=2
 GRAD_ACCUMULATION_STEPS=4
-MAX_STEPS=40000
+MAX_STEPS=200000
 SAVE_STEPS=5000
 LEARNING_RATE=5e-4
 SEED=7
