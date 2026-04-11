@@ -44,7 +44,6 @@ SUPPORTED_CAMERA_NAMES = (
 )
 DEFAULT_CAMERA_NAMES = SUPPORTED_CAMERA_NAMES
 FRONT_CAMERA_NAME = "frontview"
-FRONT_CAMERA_OBS_KEY = f"{FRONT_CAMERA_NAME}_image"
 CAMERA_NAME_TO_ENV_NAME = {
     "agentview": "agentview",
     "topview": "operation_topview",
@@ -622,12 +621,6 @@ def _get_camera_image(obs, camera_name):
     return correct_libero_image_orientation(obs[obs_key])
 
 
-def _get_front_rollout_image(obs):
-    """Returns the human-facing front rollout frame with a safe fallback."""
-    obs_key = FRONT_CAMERA_OBS_KEY if FRONT_CAMERA_OBS_KEY in obs else CAMERA_NAME_TO_OBS_KEY["agentview"]
-    return correct_libero_image_orientation(obs[obs_key]), obs_key.replace("_image", "")
-
-
 def _maybe_resize_frame(frame, height, width):
     """Resizes a rollout frame to the requested shape if needed."""
     if frame.shape[0] == height and frame.shape[1] == width:
@@ -642,7 +635,12 @@ def _draw_frame_label(draw, x_offset, frame_width, label):
     padding = 6
     left = x_offset + 8
     top = 8
-    right = min(left + (text_right - text_left) + 2 * padding, x_offset + frame_width - 8)
+    max_right = x_offset + frame_width - 8
+    if max_right <= left:
+        return
+    right = min(left + (text_right - text_left) + 2 * padding, max_right)
+    if right <= left:
+        return
     bottom = top + (text_bottom - text_top) + 2 * padding
     draw.rectangle((left, top, right, bottom), fill=(0, 0, 0))
     draw.text((left + padding, top + padding), text, fill=(255, 255, 255))
@@ -743,11 +741,22 @@ def get_libero_images(obs, resize_size, camera_names: Sequence[str] = DEFAULT_CA
     )
 
 
-def get_libero_rollout_frame(obs, camera_name="agentview"):
-    """Builds a side-by-side rollout frame for the active view and the front view."""
-    current_view = _get_camera_image(obs, camera_name)
-    front_view, front_label = _get_front_rollout_image(obs)
-    return compose_rollout_frame(current_view, front_view, camera_name, front_label)
+def get_libero_rollout_name(camera_names: Sequence[str]) -> str:
+    """Returns a short rollout label derived from the evaluation camera selection."""
+    resolved_camera_names = resolve_camera_names(camera_names)
+    if len(resolved_camera_names) == 1 and resolved_camera_names[0] != "agentview":
+        return f"{resolved_camera_names[0]}+agentview"
+    return "agentview"
+
+
+def get_libero_rollout_frame(obs, camera_names: Sequence[str]):
+    """Builds the rollout frame for the current evaluation mode."""
+    resolved_camera_names = resolve_camera_names(camera_names)
+    agentview_frame = _get_camera_image(obs, "agentview")
+    if len(resolved_camera_names) == 1 and resolved_camera_names[0] != "agentview":
+        current_view = _get_camera_image(obs, resolved_camera_names[0])
+        return compose_rollout_frame(current_view, agentview_frame, resolved_camera_names[0], "agentview")
+    return agentview_frame
 
 
 def _slugify_path_component(value, max_length=80):

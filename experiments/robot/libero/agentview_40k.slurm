@@ -20,6 +20,6 @@ cd /home/liutong/Projects/openvla
 
 python experiments/robot/libero/run_libero_eval.py \
     --pretrained_checkpoint "/opt/liutong/openvla-runs/agentview/openvla-7b+libero_spatial+cam-agentview+b4+lr-0.0005+seed-7+lora-r32+dropout-0.0--image_aug--40000_chkpt" \
-    --camera_name agentview \
+    --camera_names "[agentview]" \
     --local_log_dir "/opt/liutong/multiview_test/agentview_40k" \
     --rollout_root_dir "/opt/liutong/multiview_test/agentview_40k/videos"

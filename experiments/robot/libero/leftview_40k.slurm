@@ -21,6 +21,6 @@ cd /home/liutong/Projects/openvla
 
 python experiments/robot/libero/run_libero_eval.py \
     --pretrained_checkpoint "/opt/liutong/openvla-runs/leftview/openvla-7b+libero_spatial+cam-leftview+b8+lr-0.0005+seed-7+lora-r32+dropout-0.0--image_aug--40000_chkpt" \
-    --camera_name leftview \
+    --camera_names "[leftview]" \
     --local_log_dir "/opt/liutong/multiview_test/leftview_40k" \
     --rollout_root_dir "/opt/liutong/multiview_test/leftview_40k/videos"
