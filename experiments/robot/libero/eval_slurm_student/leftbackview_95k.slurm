@@ -21,7 +21,7 @@ export TF_ENABLE_ONEDNN_OPTS=0
 cd /home/liutong/Projects/openvla-multiview
 
 python experiments/robot/libero/run_libero_eval_student.py \
-    --pretrained_checkpoint "/opt/liutong/distillation-runs/agentview-teacher/distillation+libero_spatial+teacher-agentview+student-6v+0411-1800--40000_chkpt" \
+    --pretrained_checkpoint "/opt/liutong/distillation-runs/agentview-teacher/distillation+libero_spatial+teacher-agentview+student-6v+0411-1800--95000_chkpt" \
     --camera_names "[leftbackview]" \
     --local_log_dir "/opt/liutong/multiview_test/student_leftbackview_40k" \
     --rollout_root_dir "/opt/liutong/multiview_test/student_leftbackview_40k/videos"
