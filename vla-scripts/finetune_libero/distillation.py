@@ -7,6 +7,7 @@ Minimal distillation entrypoint for LIBERO multiview datasets.
 import json
 import os
 import random
+import re
 import sys
 from collections import deque
 from dataclasses import dataclass, field
@@ -63,6 +64,7 @@ class DistillationConfig:
     # fmt: off
     teacher_path: str = "openvla/openvla-7b"
     student_path: str = "openvla/openvla-7b"
+    resume_checkpoint: Optional[Path] = None
 
     data_root_dir: Path = Path("/mnt/HDD-6940GB/Dataset/LIBERO-datasets-multiview-cameraINFO-double-backsideview")
     dataset_name: str = "libero_spatial"
@@ -455,6 +457,18 @@ def _summarize_teacher_cameras(camera_names: Sequence[str]) -> str:
     return f"{len(camera_names)}v"
 
 
+def _parse_resume_checkpoint_path(resume_checkpoint: Path) -> tuple[str, int]:
+    """Extracts the original experiment id and step from a checkpoint directory name."""
+    match = re.fullmatch(r"(.+)--(\d+)_chkpt", resume_checkpoint.name)
+    if match is None:
+        raise ValueError(
+            "Expected `resume_checkpoint` to end with `--<STEP>_chkpt`, got "
+            f"`{resume_checkpoint}`."
+        )
+    exp_id, step_str = match.groups()
+    return exp_id, int(step_str)
+
+
 def _save_distillation_checkpoint(
     cfg: DistillationConfig,
     step: int,
@@ -530,6 +544,7 @@ def distill(cfg: DistillationConfig) -> None:
     student_target_camera_names = resolve_camera_names(cfg.student_target_camera_names)
     teacher_camera_views = get_camera_views(teacher_camera_names)
     student_camera_views = get_camera_views(student_target_camera_names)
+    resume_checkpoint = Path(cfg.resume_checkpoint).expanduser() if cfg.resume_checkpoint is not None else None
 
     print(
         f"Distilling OpenVLA student `{cfg.student_path}` from teacher `{cfg.teacher_path}` "
@@ -553,10 +568,26 @@ def distill(cfg: DistillationConfig) -> None:
     torch.cuda.set_device(student_device_id)
     torch.cuda.empty_cache()
 
-    exp_id = _build_experiment_id(cfg, teacher_camera_names, student_target_camera_names)
+    if resume_checkpoint is not None:
+        if not resume_checkpoint.is_dir():
+            raise FileNotFoundError(f"Resume checkpoint directory does not exist: {resume_checkpoint}")
+        exp_id, start_step = _parse_resume_checkpoint_path(resume_checkpoint)
+    else:
+        exp_id = _build_experiment_id(cfg, teacher_camera_names, student_target_camera_names)
+        start_step = 0
+
     run_dir = cfg.run_root_dir / exp_id
     adapter_dir = cfg.adapter_tmp_dir / exp_id
     run_dir.mkdir(parents=True, exist_ok=True)
+    adapter_dir.mkdir(parents=True, exist_ok=True)
+
+    if start_step >= cfg.max_steps:
+        raise ValueError(
+            f"Resume step {start_step} must be smaller than `max_steps={cfg.max_steps}`."
+        )
+
+    if resume_checkpoint is not None:
+        print(f"Resuming distillation from checkpoint `{resume_checkpoint}` at step {start_step}.")
 
     quantization_config = None
     if cfg.use_quantization:
@@ -573,7 +604,8 @@ def distill(cfg: DistillationConfig) -> None:
     AutoProcessor.register(OpenVLAConfig, PrismaticProcessor)
     AutoModelForVision2Seq.register(OpenVLAConfig, OpenVLAForActionPrediction)
 
-    processor = AutoProcessor.from_pretrained(cfg.student_path)
+    processor_source = resume_checkpoint if resume_checkpoint is not None else cfg.student_path
+    processor = AutoProcessor.from_pretrained(processor_source)
     teacher = AutoModelForVision2Seq.from_pretrained(
         cfg.teacher_path,
         torch_dtype=torch.bfloat16,
@@ -582,8 +614,9 @@ def distill(cfg: DistillationConfig) -> None:
     teacher.eval()
     teacher.requires_grad_(False)
 
+    student_source = resume_checkpoint if (resume_checkpoint is not None and not cfg.use_lora) else cfg.student_path
     student_vla = AutoModelForVision2Seq.from_pretrained(
-        cfg.student_path,
+        student_source,
         torch_dtype=torch.bfloat16,
         quantization_config=quantization_config,
         low_cpu_mem_usage=True,
@@ -594,14 +627,23 @@ def distill(cfg: DistillationConfig) -> None:
         student_vla = student_vla.to(student_device)
 
     if cfg.use_lora:
-        lora_config = LoraConfig(
-            r=cfg.lora_rank,
-            lora_alpha=min(cfg.lora_rank, 16),
-            lora_dropout=cfg.lora_dropout,
-            target_modules="all-linear",
-            init_lora_weights="gaussian",
-        )
-        student_vla = get_peft_model(student_vla, lora_config)
+        if resume_checkpoint is not None:
+            adapter_weights_path = adapter_dir / "adapter_model.safetensors"
+            if not adapter_weights_path.is_file():
+                raise FileNotFoundError(
+                    "Expected LoRA adapter weights for resume under "
+                    f"`{adapter_weights_path}`."
+                )
+            student_vla = PeftModel.from_pretrained(student_vla, adapter_dir, is_trainable=True)
+        else:
+            lora_config = LoraConfig(
+                r=cfg.lora_rank,
+                lora_alpha=min(cfg.lora_rank, 16),
+                lora_dropout=cfg.lora_dropout,
+                target_modules="all-linear",
+                init_lora_weights="gaussian",
+            )
+            student_vla = get_peft_model(student_vla, lora_config)
         student_vla.print_trainable_parameters()
 
     student_model = DistillationStudentModel(
@@ -609,6 +651,14 @@ def distill(cfg: DistillationConfig) -> None:
         student_camera_names=student_target_camera_names,
         adapter_hidden_scale=cfg.adapter_hidden_scale,
     )
+    if resume_checkpoint is not None:
+        view_adapter_weights_path = resume_checkpoint / "view_adapters.pt"
+        if not view_adapter_weights_path.is_file():
+            raise FileNotFoundError(
+                "Expected student view adapters for resume under "
+                f"`{view_adapter_weights_path}`."
+            )
+        student_model.view_adapters.load_state_dict(torch.load(view_adapter_weights_path, map_location="cpu"))
     if cfg.use_quantization:
         student_model.view_adapters = student_model.view_adapters.to(student_device)
     else:
@@ -631,7 +681,7 @@ def distill(cfg: DistillationConfig) -> None:
         action_tokenizer=action_tokenizer,
         base_tokenizer=processor.tokenizer,
         image_transform=processor.image_processor.apply_transform,
-        prompt_builder_fn=PurePromptBuilder if "v01" not in cfg.student_path else VicunaV15ChatPromptBuilder,
+        prompt_builder_fn=PurePromptBuilder if "v01" not in str(processor_source) else VicunaV15ChatPromptBuilder,
     )
     distillation_dataset = LiberoDistillationDataset(
         data_root_dir=cfg.data_root_dir,
@@ -672,10 +722,11 @@ def distill(cfg: DistillationConfig) -> None:
 
     teacher_uses_token_level_loss = len(teacher_camera_names) == 1
 
-    with tqdm.tqdm(total=cfg.max_steps, leave=False) as progress:
+    with tqdm.tqdm(total=cfg.max_steps, initial=start_step, leave=False) as progress:
         student_model.train()
         teacher.eval()
         optimizer.zero_grad()
+        completed_steps = start_step
 
         for batch_idx, batch in enumerate(dataloader):
             teacher_pixel_values = _move_pixel_values_to_device(batch["teacher_pixel_values"], teacher_device)
@@ -754,7 +805,6 @@ def distill(cfg: DistillationConfig) -> None:
             recent_action_accuracies.append(action_accuracy.item())
             recent_l1_losses.append(action_l1_loss.item())
 
-            gradient_step_idx = batch_idx // cfg.grad_accumulation_steps
             smooth_total_loss = sum(recent_total_losses) / len(recent_total_losses)
             smooth_action_loss = sum(recent_action_losses) / len(recent_action_losses)
             smooth_patch_loss = sum(recent_patch_losses) / len(recent_patch_losses)
@@ -762,43 +812,44 @@ def distill(cfg: DistillationConfig) -> None:
             smooth_action_accuracy = sum(recent_action_accuracies) / len(recent_action_accuracies)
             smooth_l1_loss = sum(recent_l1_losses) / len(recent_l1_losses)
 
-            if distributed_state.is_main_process and gradient_step_idx % 10 == 0:
-                wandb.log(
-                    {
-                        "train_loss": smooth_total_loss,
-                        "action_loss": smooth_action_loss,
-                        "patch_distill_loss": smooth_patch_loss,
-                        "projector_distill_loss": smooth_projector_loss,
-                        "action_accuracy": smooth_action_accuracy,
-                        "l1_loss": smooth_l1_loss,
-                    },
-                    step=gradient_step_idx,
-                )
-
             if (batch_idx + 1) % cfg.grad_accumulation_steps == 0:
                 optimizer.step()
                 optimizer.zero_grad()
                 progress.update()
+                completed_steps += 1
 
-            if gradient_step_idx > 0 and gradient_step_idx % cfg.save_steps == 0:
-                if distributed_state.is_main_process:
-                    print(f"Saving Distillation Checkpoint for Step {gradient_step_idx}")
-                    _save_distillation_checkpoint(
-                        cfg=cfg,
-                        step=gradient_step_idx,
-                        run_dir=run_dir,
-                        adapter_dir=adapter_dir,
-                        processor=processor,
-                        dataset_statistics=distillation_dataset.dataset_statistics,
-                        student_model=student_core,
+                if distributed_state.is_main_process and completed_steps % 10 == 0:
+                    wandb.log(
+                        {
+                            "train_loss": smooth_total_loss,
+                            "action_loss": smooth_action_loss,
+                            "patch_distill_loss": smooth_patch_loss,
+                            "projector_distill_loss": smooth_projector_loss,
+                            "action_accuracy": smooth_action_accuracy,
+                            "l1_loss": smooth_l1_loss,
+                        },
+                        step=completed_steps,
                     )
 
-                if use_ddp:
-                    dist.barrier()
+                if completed_steps > 0 and completed_steps % cfg.save_steps == 0:
+                    if distributed_state.is_main_process:
+                        print(f"Saving Distillation Checkpoint for Step {completed_steps}")
+                        _save_distillation_checkpoint(
+                            cfg=cfg,
+                            step=completed_steps,
+                            run_dir=run_dir,
+                            adapter_dir=adapter_dir,
+                            processor=processor,
+                            dataset_statistics=distillation_dataset.dataset_statistics,
+                            student_model=student_core,
+                        )
 
-            if gradient_step_idx == cfg.max_steps:
-                print(f"Max step {cfg.max_steps} reached! Stopping training...")
-                break
+                    if use_ddp:
+                        dist.barrier()
+
+                if completed_steps == cfg.max_steps:
+                    print(f"Max step {cfg.max_steps} reached! Stopping training...")
+                    break
 
 
 if __name__ == "__main__":

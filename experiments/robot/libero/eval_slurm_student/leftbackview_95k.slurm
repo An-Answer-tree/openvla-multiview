@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=eval-student-spatial-leftbackview-40k
+#SBATCH --job-name=eval-student-spatial-leftbackview-95k
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --gres=gpu:1
