@@ -19,32 +19,8 @@ export HF_HUB_OFFLINE=1
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 
 REPO_ROOT="/home/liutong/Projects/openvla-multiview"
-
-TEACHER_PATH="/opt/liutong/Experiments/MultiviewVLA/teacher_ckpt/openvla-7b+libero_spatial+cam-agentview+b4+lr-0.0005+seed-7+lora-r32+dropout-0.0--image_aug--40000_chkpt"
-STUDENT_PATH="openvla/openvla-7b"
-RESUME_CHECKPOINT="/opt/liutong/distillation-runs/agentview-teacher/distillation+libero_spatial+teacher-agentview+student-6v+0411-1800--95000_chkpt"
-DATA_ROOT_DIR="/opt/public/liutong/LIBERO-datasets-multiview-cameraINFO-double-backsideview"
-RUN_ROOT_DIR="/opt/liutong/distillation-runs/agentview-teacher"
-ADAPTER_TMP_DIR="/opt/liutong/distillation-adapter-tmp/agentview-teacher"
-
-DATASET_NAME="libero_spatial"
-WANDB_PROJECT="distillation-agentview-teacher"
-WANDB_ENTITY="szliutong-wuhan-university"
-
-BATCH_SIZE=2
-GRAD_ACCUMULATION_STEPS=4
-MAX_STEPS=300000
-SAVE_STEPS=5000
-LEARNING_RATE=5e-4
-SEED=7
-
-STUDENT_GPU_IDS="[0,2]"
-TEACHER_GPU_IDS="[1,3]"
-TEACHER_CAMERA_NAMES="[agentview]"
-STUDENT_TARGET_CAMERA_NAMES="[topview,leftview,rightview,backview,leftbackview,rightbackview]"
-
-mkdir -p "${RUN_ROOT_DIR}"
-mkdir -p "${ADAPTER_TMP_DIR}"
+mkdir -p "/opt/liutong/distillation-runs/agentview-teacher"
+mkdir -p "/opt/liutong/distillation-adapter-tmp/agentview-teacher"
 
 cd "${REPO_ROOT}"
 
@@ -53,22 +29,22 @@ torchrun \
   --nnodes=1 \
   --nproc-per-node=2 \
   vla-scripts/finetune_libero/distillation.py \
-  --teacher_path "${TEACHER_PATH}" \
-  --student_path "${STUDENT_PATH}" \
-  --resume_checkpoint "${RESUME_CHECKPOINT}" \
-  --data_root_dir "${DATA_ROOT_DIR}" \
-  --dataset_name "${DATASET_NAME}" \
-  --teacher_camera_names "${TEACHER_CAMERA_NAMES}" \
-  --student_target_camera_names "${STUDENT_TARGET_CAMERA_NAMES}" \
-  --student_gpu_ids "${STUDENT_GPU_IDS}" \
-  --teacher_gpu_ids "${TEACHER_GPU_IDS}" \
-  --run_root_dir "${RUN_ROOT_DIR}" \
-  --adapter_tmp_dir "${ADAPTER_TMP_DIR}" \
-  --wandb_project "${WANDB_PROJECT}" \
-  --wandb_entity "${WANDB_ENTITY}" \
-  --batch_size "${BATCH_SIZE}" \
-  --grad_accumulation_steps "${GRAD_ACCUMULATION_STEPS}" \
-  --max_steps "${MAX_STEPS}" \
-  --save_steps "${SAVE_STEPS}" \
-  --learning_rate "${LEARNING_RATE}" \
-  --seed "${SEED}"
+  --teacher_path "/opt/liutong/Experiments/MultiviewVLA/teacher_ckpt/openvla-7b+libero_spatial+cam-agentview+b4+lr-0.0005+seed-7+lora-r32+dropout-0.0--image_aug--40000_chkpt" \
+  --student_path "openvla/openvla-7b" \
+  --resume_checkpoint "/opt/liutong/distillation-runs/agentview-teacher/distillation+libero_spatial+teacher-agentview+student-6v+0411-1800--95000_chkpt" \
+  --data_root_dir "/opt/public/liutong/LIBERO-datasets-multiview-cameraINFO-double-backsideview" \
+  --dataset_name "libero_spatial" \
+  --teacher_camera_names "[agentview]" \
+  --student_target_camera_names "[topview,leftview,rightview,backview,leftbackview,rightbackview]" \
+  --student_gpu_ids "[0,2]" \
+  --teacher_gpu_ids "[1,3]" \
+  --run_root_dir "/opt/liutong/distillation-runs/agentview-teacher" \
+  --adapter_tmp_dir "/opt/liutong/distillation-adapter-tmp/agentview-teacher" \
+  --wandb_project "distillation-agentview-teacher" \
+  --wandb_entity "szliutong-wuhan-university" \
+  --batch_size 2 \
+  --grad_accumulation_steps 4 \
+  --max_steps 300000 \
+  --save_steps 5000 \
+  --learning_rate 5e-4 \
+  --seed 7
