@@ -23,5 +23,5 @@ cd /home/liutong/Projects/openvla-multiview
 python experiments/robot/libero/run_libero_eval_student.py \
     --pretrained_checkpoint "/opt/liutong/distillation-runs/agentview-teacher/distillation+libero_spatial+teacher-agentview+student-6v+0411-1800--95000_chkpt" \
     --camera_names "[leftbackview]" \
-    --local_log_dir "/opt/liutong/multiview_test/student_leftbackview_40k" \
-    --rollout_root_dir "/opt/liutong/multiview_test/student_leftbackview_40k/videos"
+    --local_log_dir "/opt/liutong/multiview_test/student_leftbackview_95k" \
+    --rollout_root_dir "/opt/liutong/multiview_test/student_leftbackview_95k/videos"
