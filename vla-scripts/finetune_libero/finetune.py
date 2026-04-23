@@ -30,6 +30,7 @@ from torch.utils.data import DataLoader
 from transformers import AutoConfig, AutoImageProcessor
 from transformers import AutoModelForVision2Seq, AutoProcessor, BitsAndBytesConfig
 from transformers.modeling_outputs import CausalLMOutputWithPast
+from transformers.optimization import get_cosine_schedule_with_warmup
 
 import wandb
 from prismatic.extern.hf.configuration_prismatic import OpenVLAConfig
@@ -48,13 +49,16 @@ from dataset import LiberoMultiviewDataset
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 
+COSINE_WARMUP_SCHEDULER_TYPE = "linear-warmup+cosine-decay"
+
+
 @dataclass
 class FinetuneConfig:
     # fmt: off
     vla_path: str = "openvla/openvla-7b"                                           # Path to OpenVLA model
 
     # Directory Paths
-    data_root_dir: Path = Path("/mnt/HDD-6940GB/Dataset/LIBERO-datasets-multiview-cameraINFO-double-backsideview") # Path to multiview LIBERO root
+    data_root_dir: Path = Path("/opt/public/liutong/LIBERO-datasets-multiview-cameraINFO-double-backsideview") # Path to multiview LIBERO root
     dataset_name: str = "libero_spatial"                                            # LIBERO benchmark directory name
     camera_names: List[str] = field(default_factory=lambda: list(DEFAULT_CAMERA_NAMES))  # Ordered camera names to include per transition
     run_root_dir: Path = Path("runs")                                               # Path to directory to store logs & checkpoints
@@ -62,9 +66,12 @@ class FinetuneConfig:
 
     # Fine-tuning Parameters
     batch_size: int = 1                                                            # Fine-tuning batch size
-    max_steps: int = 200_000                                                        # Max number of fine-tuning steps
+    max_steps: int = 100_000                                                        # Max number of fine-tuning steps
     save_steps: int = 5000                                                          # Interval for checkpoint saving
     learning_rate: float = 5e-4                                                     # Fine-tuning learning rate
+    use_lr_scheduler: bool = False                                                  # Whether to enable LR scheduling
+    lr_scheduler_type: str = COSINE_WARMUP_SCHEDULER_TYPE                           # LR scheduler type when enabled
+    warmup_ratio: float = 0.03                                                      # Fraction of training steps used for warmup
     grad_accumulation_steps: int = 16                                                # Gradient accumulation steps
     image_aug: bool = True                                                          # Whether to train with image augmentations
     shuffle_buffer_size: int = 100_000                                              # Dataloader shuffle buffer size
@@ -83,6 +90,41 @@ class FinetuneConfig:
     wandb_entity: str = "szliutong-wuhan-university"                                # Name of entity to log under
     run_id_note: Optional[str] = None                                               # Extra note for logging, Weights & Biases
     # fmt: on
+
+
+def _build_lr_scheduler(
+    optimizer: AdamW,
+    cfg: FinetuneConfig,
+) -> Optional[torch.optim.lr_scheduler.LambdaLR]:
+    """Builds the optional learning-rate scheduler for fine-tuning."""
+    if not cfg.use_lr_scheduler:
+        return None
+
+    if cfg.lr_scheduler_type != COSINE_WARMUP_SCHEDULER_TYPE:
+        raise ValueError(
+            f"Unsupported `lr_scheduler_type={cfg.lr_scheduler_type}`. "
+            f"Expected `{COSINE_WARMUP_SCHEDULER_TYPE}`."
+        )
+
+    if not 0.0 <= cfg.warmup_ratio <= 1.0:
+        raise ValueError(f"Expected `warmup_ratio` in [0, 1], got {cfg.warmup_ratio}.")
+
+    num_warmup_steps = int(cfg.max_steps * cfg.warmup_ratio)
+    return get_cosine_schedule_with_warmup(
+        optimizer=optimizer,
+        num_warmup_steps=num_warmup_steps,
+        num_training_steps=cfg.max_steps,
+    )
+
+
+def _get_learning_rate(
+    optimizer: AdamW,
+    lr_scheduler: Optional[torch.optim.lr_scheduler.LambdaLR],
+) -> float:
+    """Returns the current learning rate for logging."""
+    if lr_scheduler is not None:
+        return float(lr_scheduler.get_last_lr()[0])
+    return float(optimizer.param_groups[0]["lr"])
 
 
 @draccus.wrap()
@@ -116,6 +158,8 @@ def finetune(cfg: FinetuneConfig) -> None:
         exp_id += f"+lora-r{cfg.lora_rank}+dropout-{cfg.lora_dropout}"
     if cfg.use_quantization:
         exp_id += "+q-4bit"
+    if cfg.use_lr_scheduler:
+        exp_id += f"+sched-{cfg.lr_scheduler_type}+warmup-{cfg.warmup_ratio}"
     if cfg.run_id_note is not None:
         exp_id += f"--{cfg.run_id_note}"
     if cfg.image_aug:
@@ -170,6 +214,7 @@ def finetune(cfg: FinetuneConfig) -> None:
 
     trainable_params = [param for param in vla.parameters() if param.requires_grad]
     optimizer = AdamW(trainable_params, lr=cfg.learning_rate)
+    lr_scheduler = _build_lr_scheduler(optimizer, cfg)
 
     action_tokenizer = ActionTokenizer(processor.tokenizer)
     batch_transform = RLDSBatchTransform(
@@ -216,6 +261,7 @@ def finetune(cfg: FinetuneConfig) -> None:
     with tqdm.tqdm(total=cfg.max_steps, leave=False) as progress:
         vla.train()
         optimizer.zero_grad()
+        completed_steps = 0
         for batch_idx, batch in enumerate(dataloader):
             with torch.autocast("cuda", dtype=torch.bfloat16):
                 output: CausalLMOutputWithPast = vla(
@@ -250,62 +296,66 @@ def finetune(cfg: FinetuneConfig) -> None:
             recent_action_accuracies.append(action_accuracy.item())
             recent_l1_losses.append(action_l1_loss.item())
 
-            gradient_step_idx = batch_idx // cfg.grad_accumulation_steps
             smoothened_loss = sum(recent_losses) / len(recent_losses)
             smoothened_action_accuracy = sum(recent_action_accuracies) / len(recent_action_accuracies)
             smoothened_l1_loss = sum(recent_l1_losses) / len(recent_l1_losses)
 
-            if distributed_state.is_main_process and gradient_step_idx % 10 == 0:
-                wandb.log(
-                    {
-                        "train_loss": smoothened_loss,
-                        "action_accuracy": smoothened_action_accuracy,
-                        "l1_loss": smoothened_l1_loss,
-                    },
-                    step=gradient_step_idx,
-                )
-
             if (batch_idx + 1) % cfg.grad_accumulation_steps == 0:
                 optimizer.step()
+                if lr_scheduler is not None:
+                    lr_scheduler.step()
                 optimizer.zero_grad()
+                completed_steps += 1
                 progress.update()
+                current_learning_rate = _get_learning_rate(optimizer, lr_scheduler)
 
-            if gradient_step_idx > 0 and gradient_step_idx % cfg.save_steps == 0:
-                if distributed_state.is_main_process:
-                    print(f"Saving Model Checkpoint for Step {gradient_step_idx}")
-                    save_dir = adapter_dir if cfg.use_lora else run_dir
-                    processor.save_pretrained(run_dir)
-                    vla_module.save_pretrained(save_dir)
-
-                if use_ddp:
-                    dist.barrier()
-
-                if cfg.use_lora:
-                    base_vla = AutoModelForVision2Seq.from_pretrained(
-                        cfg.vla_path,
-                        torch_dtype=torch.bfloat16,
-                        low_cpu_mem_usage=True,
+                if distributed_state.is_main_process and completed_steps % 10 == 0:
+                    wandb.log(
+                        {
+                            "train_loss": smoothened_loss,
+                            "action_accuracy": smoothened_action_accuracy,
+                            "l1_loss": smoothened_l1_loss,
+                            "learning_rate": current_learning_rate,
+                        },
+                        step=completed_steps,
                     )
-                    merged_vla = PeftModel.from_pretrained(base_vla, adapter_dir)
-                    merged_vla = merged_vla.merge_and_unload()
+
+                if completed_steps > 0 and completed_steps % cfg.save_steps == 0:
                     if distributed_state.is_main_process:
-                        if cfg.save_latest_checkpoint_only:
-                            merged_vla.save_pretrained(run_dir)
-                            print(f"Saved Model Checkpoint for Step {gradient_step_idx} at: {run_dir}")
-                        else:
-                            checkpoint_dir = Path(str(run_dir) + f"--{gradient_step_idx}_chkpt")
-                            os.makedirs(checkpoint_dir, exist_ok=True)
-                            save_dataset_statistics(vla_dataset.dataset_statistics, checkpoint_dir)
-                            processor.save_pretrained(checkpoint_dir)
-                            merged_vla.save_pretrained(checkpoint_dir)
-                            print(f"Saved Model Checkpoint for Step {gradient_step_idx} at: {checkpoint_dir}")
+                        print(f"Saving Model Checkpoint for Step {completed_steps}")
+                        save_dir = adapter_dir if cfg.use_lora else run_dir
+                        processor.save_pretrained(run_dir)
+                        vla_module.save_pretrained(save_dir)
 
-                if use_ddp:
-                    dist.barrier()
+                    if use_ddp:
+                        dist.barrier()
 
-            if gradient_step_idx == cfg.max_steps:
-                print(f"Max step {cfg.max_steps} reached! Stopping training...")
-                break
+                    if cfg.use_lora:
+                        base_vla = AutoModelForVision2Seq.from_pretrained(
+                            cfg.vla_path,
+                            torch_dtype=torch.bfloat16,
+                            low_cpu_mem_usage=True,
+                        )
+                        merged_vla = PeftModel.from_pretrained(base_vla, adapter_dir)
+                        merged_vla = merged_vla.merge_and_unload()
+                        if distributed_state.is_main_process:
+                            if cfg.save_latest_checkpoint_only:
+                                merged_vla.save_pretrained(run_dir)
+                                print(f"Saved Model Checkpoint for Step {completed_steps} at: {run_dir}")
+                            else:
+                                checkpoint_dir = Path(str(run_dir) + f"--{completed_steps}_chkpt")
+                                os.makedirs(checkpoint_dir, exist_ok=True)
+                                save_dataset_statistics(vla_dataset.dataset_statistics, checkpoint_dir)
+                                processor.save_pretrained(checkpoint_dir)
+                                merged_vla.save_pretrained(checkpoint_dir)
+                                print(f"Saved Model Checkpoint for Step {completed_steps} at: {checkpoint_dir}")
+
+                    if use_ddp:
+                        dist.barrier()
+
+                if completed_steps == cfg.max_steps:
+                    print(f"Max step {cfg.max_steps} reached! Stopping training...")
+                    break
 
 
 if __name__ == "__main__":
