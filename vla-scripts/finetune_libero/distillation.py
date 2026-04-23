@@ -5,6 +5,7 @@ Minimal distillation entrypoint for LIBERO multiview datasets.
 """
 
 import json
+import math
 import os
 import random
 import re
@@ -55,6 +56,10 @@ from dataset import LiberoMultiviewDataset
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 
+COSINE_WARMUP_SCHEDULER_TYPE = "linear-warmup+cosine-decay"
+WANDB_LOG_INTERVAL_STEPS = 10
+
+
 def _default_student_target_camera_names() -> List[str]:
     return [camera_name for camera_name in DEFAULT_CAMERA_NAMES if camera_name != "agentview"]
 
@@ -76,7 +81,16 @@ class DistillationConfig:
     batch_size: int = 1
     max_steps: int = 200_000
     save_steps: int = 5_000
-    learning_rate: float = 5e-4
+    learning_rate: float = 3e-4
+    use_balanced_view_sampling: bool = True
+    use_dual_lr_scheduler: bool = True
+    adapter_learning_rate: float = 1e-3
+    lora_learning_rate: float = 3e-4
+    use_lr_scheduler: bool = True
+    lr_scheduler_type: str = COSINE_WARMUP_SCHEDULER_TYPE
+    warmup_ratio: float = 0.03
+    min_lr_ratio: float = 0.1
+    max_grad_norm: float = 1.0
     grad_accumulation_steps: int = 16
     image_aug: bool = True
     shuffle_buffer_size: int = 100_000
@@ -160,6 +174,33 @@ class DistillationBatchTransform:
         raise ValueError(f"Unsupported transformed image type `{type(first_transformed_image)}`")
 
 
+class _BalancedViewSampler:
+    """Samples student views in a shuffled round-robin order."""
+
+    def __init__(self, num_views: int, rng: np.random.Generator, enabled: bool) -> None:
+        if num_views <= 0:
+            raise ValueError(f"Expected `num_views` to be positive, got {num_views}.")
+        self.num_views = num_views
+        self.rng = rng
+        self.enabled = enabled
+        self._view_order: List[int] = []
+        self._cursor = 0
+
+    def sample(self) -> int:
+        """Returns the next sampled student-view index."""
+        if not self.enabled:
+            return int(self.rng.integers(self.num_views))
+
+        if self._cursor >= len(self._view_order):
+            self._view_order = list(range(self.num_views))
+            self.rng.shuffle(self._view_order)
+            self._cursor = 0
+
+        sampled_view_index = self._view_order[self._cursor]
+        self._cursor += 1
+        return int(sampled_view_index)
+
+
 class LiberoDistillationDataset(LiberoMultiviewDataset):
     """Dataset that returns teacher and student views for the same transition."""
 
@@ -176,6 +217,7 @@ class LiberoDistillationDataset(LiberoMultiviewDataset):
         seed: Optional[int] = None,
         repeat: bool = True,
         global_shuffle_across_ranks: bool = False,
+        use_balanced_view_sampling: bool = True,
     ) -> None:
         all_camera_views = tuple(dict.fromkeys([*teacher_camera_views, *student_camera_views]))
         super().__init__(
@@ -193,6 +235,7 @@ class LiberoDistillationDataset(LiberoMultiviewDataset):
         self.distillation_batch_transform = batch_transform
         self.teacher_camera_views = tuple(teacher_camera_views)
         self.student_camera_views = tuple(student_camera_views)
+        self.use_balanced_view_sampling = use_balanced_view_sampling
 
         if not self.teacher_camera_views:
             raise ValueError("Expected at least one teacher camera view.")
@@ -210,6 +253,11 @@ class LiberoDistillationDataset(LiberoMultiviewDataset):
         else:
             rng = np.random.default_rng(self.seed + 10_000 * rank + worker_id)
         handle_cache: Dict[str, Any] = {}
+        view_sampler = _BalancedViewSampler(
+            num_views=len(self.student_camera_views),
+            rng=rng,
+            enabled=self.use_balanced_view_sampling,
+        )
 
         try:
             for transition_idx in self._iter_sharded_transition_indices(rng):
@@ -221,7 +269,7 @@ class LiberoDistillationDataset(LiberoMultiviewDataset):
                     handle_cache[trajectory.file_path] = h5py.File(trajectory.file_path, "r")
 
                 demo = handle_cache[trajectory.file_path]["data"][trajectory.demo_key]
-                student_view_index = int(rng.integers(len(self.student_camera_views)))
+                student_view_index = view_sampler.sample()
                 student_camera_view = self.student_camera_views[student_view_index]
 
                 teacher_images = [
@@ -409,6 +457,115 @@ def _serialize_cfg(cfg: DistillationConfig) -> Dict[str, Any]:
         else:
             serialized[key] = value
     return serialized
+
+
+def _build_optimizer(student_model: DistillationStudentModel, cfg: DistillationConfig) -> AdamW:
+    """Builds the distillation optimizer."""
+    adapter_params = [parameter for parameter in student_model.view_adapters.parameters() if parameter.requires_grad]
+    student_params = [parameter for parameter in student_model.vla.parameters() if parameter.requires_grad]
+
+    if cfg.use_dual_lr_scheduler:
+        if cfg.adapter_learning_rate <= 0.0:
+            raise ValueError(
+                f"Expected `adapter_learning_rate` to be positive, got {cfg.adapter_learning_rate}."
+            )
+        if cfg.lora_learning_rate <= 0.0:
+            raise ValueError(f"Expected `lora_learning_rate` to be positive, got {cfg.lora_learning_rate}.")
+
+        param_groups = []
+        if adapter_params:
+            param_groups.append(
+                {
+                    "name": "adapter",
+                    "params": adapter_params,
+                    "lr": cfg.adapter_learning_rate,
+                }
+            )
+        if student_params:
+            param_groups.append(
+                {
+                    "name": "lora" if cfg.use_lora else "student",
+                    "params": student_params,
+                    "lr": cfg.lora_learning_rate,
+                }
+            )
+    else:
+        if cfg.learning_rate <= 0.0:
+            raise ValueError(f"Expected `learning_rate` to be positive, got {cfg.learning_rate}.")
+        param_groups = [
+            {
+                "name": "default",
+                "params": [*adapter_params, *student_params],
+                "lr": cfg.learning_rate,
+            }
+        ]
+
+    if not param_groups or not any(param_group["params"] for param_group in param_groups):
+        raise ValueError("Expected at least one trainable parameter in the distillation optimizer.")
+
+    return AdamW(param_groups)
+
+
+def _build_lr_scheduler(
+    optimizer: AdamW,
+    cfg: DistillationConfig,
+) -> Optional[torch.optim.lr_scheduler.LambdaLR]:
+    """Builds the optional learning-rate scheduler for distillation."""
+    if not cfg.use_lr_scheduler:
+        return None
+
+    if cfg.lr_scheduler_type != COSINE_WARMUP_SCHEDULER_TYPE:
+        raise ValueError(
+            f"Unsupported `lr_scheduler_type={cfg.lr_scheduler_type}`. "
+            f"Expected `{COSINE_WARMUP_SCHEDULER_TYPE}`."
+        )
+    if not 0.0 <= cfg.warmup_ratio <= 1.0:
+        raise ValueError(f"Expected `warmup_ratio` in [0, 1], got {cfg.warmup_ratio}.")
+    if not 0.0 <= cfg.min_lr_ratio <= 1.0:
+        raise ValueError(f"Expected `min_lr_ratio` in [0, 1], got {cfg.min_lr_ratio}.")
+
+    num_warmup_steps = int(cfg.max_steps * cfg.warmup_ratio)
+
+    def lr_lambda(current_step: int) -> float:
+        """Returns the multiplicative learning-rate factor for one step."""
+        if num_warmup_steps > 0 and current_step < num_warmup_steps:
+            return float(current_step + 1) / float(num_warmup_steps)
+
+        decay_steps = max(1, cfg.max_steps - num_warmup_steps)
+        progress = min(max((current_step - num_warmup_steps) / decay_steps, 0.0), 1.0)
+        cosine_decay = 0.5 * (1.0 + math.cos(math.pi * progress))
+        return cfg.min_lr_ratio + (1.0 - cfg.min_lr_ratio) * cosine_decay
+
+    return torch.optim.lr_scheduler.LambdaLR(
+        optimizer,
+        lr_lambda=[lr_lambda] * len(optimizer.param_groups),
+    )
+
+
+def _compute_action_loss_from_logits(action_logits: torch.Tensor, action_targets: torch.Tensor) -> torch.Tensor:
+    """Computes the token-level action loss from shifted logits and labels."""
+    if not torch.any(action_targets.ne(IGNORE_INDEX)):
+        return torch.zeros((), device=action_logits.device)
+    return F.cross_entropy(
+        action_logits.reshape(-1, action_logits.shape[-1]),
+        action_targets.reshape(-1),
+        ignore_index=IGNORE_INDEX,
+    )
+
+
+def _mean_or_none(values: Sequence[float]) -> Optional[float]:
+    """Returns the mean of a non-empty numeric sequence."""
+    if not values:
+        return None
+    return float(sum(values) / len(values))
+
+
+def _get_learning_rates(optimizer: AdamW) -> Dict[str, float]:
+    """Returns the current optimizer learning rates by parameter-group name."""
+    return {
+        str(param_group.get("name", "default")): float(param_group["lr"])
+        for param_group in optimizer.param_groups
+    }
 
 
 def _get_rank_device_ids(cfg: DistillationConfig, rank: int, world_size: int) -> tuple[int, int]:
@@ -674,7 +831,8 @@ def distill(cfg: DistillationConfig) -> None:
         )
 
     student_core = student_model.module if use_ddp else student_model
-    optimizer = AdamW([parameter for parameter in student_model.parameters() if parameter.requires_grad], lr=cfg.learning_rate)
+    optimizer = _build_optimizer(student_core, cfg)
+    lr_scheduler = _build_lr_scheduler(optimizer, cfg)
 
     action_tokenizer = ActionTokenizer(processor.tokenizer)
     batch_transform = DistillationBatchTransform(
@@ -694,6 +852,7 @@ def distill(cfg: DistillationConfig) -> None:
         shuffle_buffer_size=cfg.shuffle_buffer_size,
         seed=cfg.seed,
         global_shuffle_across_ranks=cfg.global_shuffle_across_ranks,
+        use_balanced_view_sampling=cfg.use_balanced_view_sampling,
     )
 
     if distributed_state.is_main_process:
@@ -719,6 +878,19 @@ def distill(cfg: DistillationConfig) -> None:
     recent_projector_losses = deque(maxlen=cfg.grad_accumulation_steps)
     recent_action_accuracies = deque(maxlen=cfg.grad_accumulation_steps)
     recent_l1_losses = deque(maxlen=cfg.grad_accumulation_steps)
+    recent_view_action_losses = {
+        camera_name: deque(maxlen=cfg.grad_accumulation_steps)
+        for camera_name in student_target_camera_names
+    }
+    recent_view_patch_losses = {
+        camera_name: deque(maxlen=cfg.grad_accumulation_steps)
+        for camera_name in student_target_camera_names
+    }
+    recent_view_projector_losses = {
+        camera_name: deque(maxlen=cfg.grad_accumulation_steps)
+        for camera_name in student_target_camera_names
+    }
+    cumulative_view_counts = {camera_name: 0 for camera_name in student_target_camera_names}
 
     teacher_uses_token_level_loss = len(teacher_camera_names) == 1
 
@@ -735,6 +907,8 @@ def distill(cfg: DistillationConfig) -> None:
             attention_mask = batch["attention_mask"].to(student_device)
             labels = batch["labels"].to(student_device)
             student_view_indices = batch["student_view_indices"].to(student_device)
+            for view_index, camera_name in enumerate(student_target_camera_names):
+                cumulative_view_counts[camera_name] += int((batch["student_view_indices"] == view_index).sum().item())
 
             with torch.no_grad():
                 with torch.autocast("cuda", dtype=torch.bfloat16):
@@ -804,6 +978,27 @@ def distill(cfg: DistillationConfig) -> None:
             recent_projector_losses.append(projector_distill_loss.item())
             recent_action_accuracies.append(action_accuracy.item())
             recent_l1_losses.append(action_l1_loss.item())
+            for view_index, camera_name in enumerate(student_target_camera_names):
+                view_mask = student_view_indices == view_index
+                if not torch.any(view_mask):
+                    continue
+                recent_view_action_losses[camera_name].append(
+                    _compute_action_loss_from_logits(action_logits[view_mask], action_gt[view_mask]).item()
+                )
+                recent_view_patch_losses[camera_name].append(
+                    _compute_feature_distillation_loss(
+                        student_features=student_output.vision_features[view_mask],
+                        teacher_features=teacher_patch_targets[view_mask],
+                        use_token_level_loss=teacher_uses_token_level_loss,
+                    ).item()
+                )
+                recent_view_projector_losses[camera_name].append(
+                    _compute_feature_distillation_loss(
+                        student_features=student_output.projector_features[view_mask],
+                        teacher_features=teacher_projector_targets[view_mask],
+                        use_token_level_loss=teacher_uses_token_level_loss,
+                    ).item()
+                )
 
             smooth_total_loss = sum(recent_total_losses) / len(recent_total_losses)
             smooth_action_loss = sum(recent_action_losses) / len(recent_action_losses)
@@ -813,23 +1008,56 @@ def distill(cfg: DistillationConfig) -> None:
             smooth_l1_loss = sum(recent_l1_losses) / len(recent_l1_losses)
 
             if (batch_idx + 1) % cfg.grad_accumulation_steps == 0:
+                if cfg.max_grad_norm > 0.0:
+                    torch.nn.utils.clip_grad_norm_(student_model.parameters(), cfg.max_grad_norm)
                 optimizer.step()
+                if lr_scheduler is not None:
+                    lr_scheduler.step()
                 optimizer.zero_grad()
                 progress.update()
                 completed_steps += 1
 
-                if distributed_state.is_main_process and completed_steps % 10 == 0:
-                    wandb.log(
-                        {
-                            "train_loss": smooth_total_loss,
-                            "action_loss": smooth_action_loss,
-                            "patch_distill_loss": smooth_patch_loss,
-                            "projector_distill_loss": smooth_projector_loss,
-                            "action_accuracy": smooth_action_accuracy,
-                            "l1_loss": smooth_l1_loss,
-                        },
-                        step=completed_steps,
-                    )
+                if distributed_state.is_main_process and completed_steps % WANDB_LOG_INTERVAL_STEPS == 0:
+                    wandb_payload = {
+                        "train_loss": smooth_total_loss,
+                        "action_loss": smooth_action_loss,
+                        "patch_distill_loss": smooth_patch_loss,
+                        "projector_distill_loss": smooth_projector_loss,
+                        "action_accuracy": smooth_action_accuracy,
+                        "l1_loss": smooth_l1_loss,
+                    }
+                    if cfg.use_dual_lr_scheduler:
+                        learning_rates = _get_learning_rates(optimizer)
+                        if "adapter" in learning_rates:
+                            wandb_payload["learning_rate/adapter"] = learning_rates["adapter"]
+                        if cfg.use_lora and "lora" in learning_rates:
+                            wandb_payload["learning_rate/lora"] = learning_rates["lora"]
+                        if not cfg.use_lora and "student" in learning_rates:
+                            wandb_payload["learning_rate/student"] = learning_rates["student"]
+                    else:
+                        wandb_payload["learning_rate"] = float(optimizer.param_groups[0]["lr"])
+
+                    total_view_samples = sum(cumulative_view_counts.values())
+                    for camera_name in student_target_camera_names:
+                        wandb_payload[f"student_view_count/{camera_name}"] = cumulative_view_counts[camera_name]
+                        if total_view_samples > 0:
+                            wandb_payload[f"student_view_ratio/{camera_name}"] = (
+                                cumulative_view_counts[camera_name] / total_view_samples
+                            )
+
+                        mean_view_action_loss = _mean_or_none(recent_view_action_losses[camera_name])
+                        mean_view_patch_loss = _mean_or_none(recent_view_patch_losses[camera_name])
+                        mean_view_projector_loss = _mean_or_none(recent_view_projector_losses[camera_name])
+                        if mean_view_action_loss is not None:
+                            wandb_payload[f"view/action_loss/{camera_name}"] = mean_view_action_loss
+                        if mean_view_patch_loss is not None:
+                            wandb_payload[f"view/patch_distill_loss/{camera_name}"] = mean_view_patch_loss
+                        if mean_view_projector_loss is not None:
+                            wandb_payload[f"view/projector_distill_loss/{camera_name}"] = (
+                                mean_view_projector_loss
+                            )
+
+                    wandb.log(wandb_payload, step=completed_steps)
 
                 if completed_steps > 0 and completed_steps % cfg.save_steps == 0:
                     if distributed_state.is_main_process:

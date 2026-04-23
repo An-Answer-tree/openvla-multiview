@@ -12,7 +12,7 @@
 set -eo pipefail
 
 source /home/liutong/.bashrc
-conda activate dwt
+conda activate openvla
 
 export http_proxy="http://localhost:7878"
 export https_proxy="http://localhost:7878"

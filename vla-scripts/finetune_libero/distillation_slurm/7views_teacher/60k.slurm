@@ -35,7 +35,7 @@ RUN_ID_NOTE="7views-teacher-60k"
 BATCH_SIZE=2
 MAX_STEPS=200000
 SAVE_STEPS=5000
-LEARNING_RATE=5e-4
+LEARNING_RATE=3e-4
 GRAD_ACCUMULATION_STEPS=4
 IMAGE_AUG=True
 SHUFFLE_BUFFER_SIZE=100000
@@ -50,6 +50,15 @@ ADAPTER_HIDDEN_SCALE=4.0
 ACTION_LOSS_WEIGHT=1.0
 DISTILL_PATCH_LOSS_WEIGHT=1.0
 DISTILL_PROJECTOR_LOSS_WEIGHT=1.0
+USE_BALANCED_VIEW_SAMPLING=True
+USE_DUAL_LR_SCHEDULER=True
+ADAPTER_LEARNING_RATE=1e-3
+LORA_LEARNING_RATE=3e-4
+USE_LR_SCHEDULER=True
+LR_SCHEDULER_TYPE="linear-warmup+cosine-decay"
+WARMUP_RATIO=0.03
+MIN_LR_RATIO=0.1
+MAX_GRAD_NORM=1.0
 STUDENT_GPU_IDS="[0,2]"
 TEACHER_GPU_IDS="[1,3]"
 
@@ -92,6 +101,15 @@ torchrun \
   --action_loss_weight "${ACTION_LOSS_WEIGHT}" \
   --distill_patch_loss_weight "${DISTILL_PATCH_LOSS_WEIGHT}" \
   --distill_projector_loss_weight "${DISTILL_PROJECTOR_LOSS_WEIGHT}" \
+  --use_balanced_view_sampling "${USE_BALANCED_VIEW_SAMPLING}" \
+  --use_dual_lr_scheduler "${USE_DUAL_LR_SCHEDULER}" \
+  --adapter_learning_rate "${ADAPTER_LEARNING_RATE}" \
+  --lora_learning_rate "${LORA_LEARNING_RATE}" \
+  --use_lr_scheduler "${USE_LR_SCHEDULER}" \
+  --lr_scheduler_type "${LR_SCHEDULER_TYPE}" \
+  --warmup_ratio "${WARMUP_RATIO}" \
+  --min_lr_ratio "${MIN_LR_RATIO}" \
+  --max_grad_norm "${MAX_GRAD_NORM}" \
   --student_gpu_ids "${STUDENT_GPU_IDS}" \
   --teacher_gpu_ids "${TEACHER_GPU_IDS}" \
   --wandb_project "${WANDB_PROJECT}" \

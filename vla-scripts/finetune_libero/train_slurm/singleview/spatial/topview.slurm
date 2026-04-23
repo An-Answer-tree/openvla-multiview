@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=openvla-libero-spatial-7views
+#SBATCH --job-name=openvla-libero-spatial-topview
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --gres=gpu:2
@@ -30,9 +30,9 @@ torchrun \
   --vla_path openvla/openvla-7b \
   --data_root_dir /opt/public/liutong/LIBERO-datasets-multiview-cameraINFO-double-backsideview \
   --dataset_name libero_spatial \
-  --camera_names "[agentview,topview,leftview,rightview,backview,leftbackview,rightbackview]" \
-  --run_root_dir /opt/liutong/openvla-runs/multiview/spatial/7views \
-  --adapter_tmp_dir /opt/liutong/openvla-adapter-tmp/multiview/spatial/7views \
+  --camera_names "[topview]" \
+  --run_root_dir /opt/liutong/openvla-runs/singleview/spatial/topview \
+  --adapter_tmp_dir /opt/liutong/openvla-adapter-tmp/singleview/spatial/topview \
   --batch_size 1 \
   --max_steps 100000 \
   --save_steps 5000 \
@@ -50,5 +50,5 @@ torchrun \
   --lora_rank 32 \
   --lora_dropout 0.0 \
   --use_quantization False \
-  --wandb_project openvla-libero-spatial-7views \
+  --wandb_project openvla-libero-spatial-topview \
   --wandb_entity szliutong-wuhan-university
