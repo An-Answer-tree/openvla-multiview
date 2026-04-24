@@ -33,14 +33,14 @@ torchrun \
   --camera_names "[topview]" \
   --run_root_dir /opt/liutong/openvla-runs/singleview/spatial/topview \
   --adapter_tmp_dir /opt/liutong/openvla-adapter-tmp/singleview/spatial/topview \
-  --batch_size 1 \
+  --batch_size 4 \
   --max_steps 100000 \
   --save_steps 5000 \
   --learning_rate 5e-4 \
   --use_lr_scheduler True \
   --lr_scheduler_type linear-warmup+cosine-decay \
   --warmup_ratio 0.03 \
-  --grad_accumulation_steps 16 \
+  --grad_accumulation_steps 4 \
   --image_aug True \
   --shuffle_buffer_size 100000 \
   --seed 7 \
