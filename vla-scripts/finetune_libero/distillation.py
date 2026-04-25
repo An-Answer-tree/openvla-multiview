@@ -60,10 +60,6 @@ COSINE_WARMUP_SCHEDULER_TYPE = "linear-warmup+cosine-decay"
 WANDB_LOG_INTERVAL_STEPS = 10
 
 
-def _default_student_target_camera_names() -> List[str]:
-    return [camera_name for camera_name in DEFAULT_CAMERA_NAMES if camera_name != "agentview"]
-
-
 @dataclass
 class DistillationConfig:
     # fmt: off
@@ -74,7 +70,8 @@ class DistillationConfig:
     data_root_dir: Path = Path("/mnt/HDD-6940GB/Dataset/LIBERO-datasets-multiview-cameraINFO-double-backsideview")
     dataset_name: str = "libero_spatial"
     teacher_camera_names: List[str] = field(default_factory=lambda: list(DEFAULT_CAMERA_NAMES))
-    student_target_camera_names: List[str] = field(default_factory=_default_student_target_camera_names)
+    student_target_camera_names: Optional[List[str]] = None
+    distill_camera_name: Optional[str] = None
     run_root_dir: Path = Path("runs")
     adapter_tmp_dir: Path = Path("adapter-tmp")
 
@@ -373,10 +370,25 @@ class ResidualViewAdapter(nn.Module):
 class DistillationStudentModel(nn.Module):
     """Student model with view-specific visual adapters."""
 
-    def __init__(self, vla: nn.Module, student_camera_names: Sequence[str], adapter_hidden_scale: float) -> None:
+    def __init__(
+        self,
+        vla: nn.Module,
+        student_camera_names: Sequence[str],
+        active_student_camera_names: Sequence[str],
+        adapter_hidden_scale: float,
+    ) -> None:
         super().__init__()
         self.vla = vla
         self.student_camera_names = tuple(student_camera_names)
+        self.active_student_camera_names = tuple(active_student_camera_names)
+        missing_active_camera_names = [
+            camera_name for camera_name in self.active_student_camera_names if camera_name not in self.student_camera_names
+        ]
+        if missing_active_camera_names:
+            raise ValueError(
+                "Expected active student camera names to be a subset of student adapters, got missing "
+                f"{missing_active_camera_names} from {list(self.student_camera_names)}."
+            )
 
         base_model = self._get_base_model()
         feature_dim = int(base_model.vision_backbone.embed_dim)
@@ -395,7 +407,7 @@ class DistillationStudentModel(nn.Module):
 
     def _apply_view_adapters(self, vision_features: torch.Tensor, student_view_indices: torch.Tensor) -> torch.Tensor:
         adapted_features = vision_features.clone()
-        for view_index, camera_name in enumerate(self.student_camera_names):
+        for view_index, camera_name in enumerate(self.active_student_camera_names):
             mask = student_view_indices == view_index
             if not torch.any(mask):
                 continue
@@ -591,17 +603,51 @@ def _get_rank_device_ids(cfg: DistillationConfig, rank: int, world_size: int) ->
     return cfg.student_gpu_ids[rank], cfg.teacher_gpu_ids[rank]
 
 
+def _resolve_student_target_camera_names(
+    teacher_camera_names: Sequence[str],
+    student_target_camera_names: Optional[Sequence[str]],
+) -> tuple[str, ...]:
+    """Returns the full set of student adapters to instantiate."""
+    if student_target_camera_names is not None:
+        return resolve_camera_names(student_target_camera_names)
+
+    if len(teacher_camera_names) == 1:
+        teacher_camera_name = teacher_camera_names[0]
+        return tuple(camera_name for camera_name in DEFAULT_CAMERA_NAMES if camera_name != teacher_camera_name)
+
+    return resolve_camera_names(DEFAULT_CAMERA_NAMES)
+
+
+def _resolve_active_student_camera_names(
+    student_target_camera_names: Sequence[str],
+    distill_camera_name: Optional[str],
+) -> tuple[str, ...]:
+    """Returns the student views that will actually be sampled during training."""
+    resolved_student_target_camera_names = resolve_camera_names(student_target_camera_names)
+    if distill_camera_name is None:
+        return resolved_student_target_camera_names
+
+    active_student_camera_names = resolve_camera_names([distill_camera_name])
+    active_student_camera_name = active_student_camera_names[0]
+    if active_student_camera_name not in resolved_student_target_camera_names:
+        raise ValueError(
+            f"`distill_camera_name={active_student_camera_name}` must be one of the student target cameras "
+            f"{list(resolved_student_target_camera_names)}."
+        )
+    return active_student_camera_names
+
+
 def _build_experiment_id(
     cfg: DistillationConfig,
     teacher_camera_names: Sequence[str],
-    student_camera_names: Sequence[str],
+    active_student_camera_names: Sequence[str],
 ) -> str:
     """Builds a readable experiment identifier."""
     exp_id_parts = [
         "distillation",
         cfg.dataset_name,
         f"teacher-{_summarize_teacher_cameras(teacher_camera_names)}",
-        f"student-{len(student_camera_names)}v",
+        f"student-{_summarize_student_cameras(active_student_camera_names)}",
         datetime.now().strftime("%m%d-%H%M"),
     ]
     return "+".join(exp_id_parts)
@@ -609,6 +655,13 @@ def _build_experiment_id(
 
 def _summarize_teacher_cameras(camera_names: Sequence[str]) -> str:
     """Returns a compact identifier for the teacher camera setup."""
+    if len(camera_names) == 1:
+        return camera_names[0]
+    return f"{len(camera_names)}v"
+
+
+def _summarize_student_cameras(camera_names: Sequence[str]) -> str:
+    """Returns a compact identifier for the active student-camera setup."""
     if len(camera_names) == 1:
         return camera_names[0]
     return f"{len(camera_names)}v"
@@ -634,6 +687,9 @@ def _save_distillation_checkpoint(
     processor: Any,
     dataset_statistics: Dict[str, Any],
     student_model: DistillationStudentModel,
+    teacher_camera_names: Sequence[str],
+    student_target_camera_names: Sequence[str],
+    active_student_camera_names: Sequence[str],
 ) -> None:
     """Saves one distilled student checkpoint."""
     checkpoint_dir = run_dir if cfg.save_latest_checkpoint_only else Path(str(run_dir) + f"--{step}_chkpt")
@@ -642,8 +698,9 @@ def _save_distillation_checkpoint(
     processor.save_pretrained(checkpoint_dir)
 
     metadata = {
-        "teacher_camera_names": list(resolve_camera_names(cfg.teacher_camera_names)),
-        "student_target_camera_names": list(resolve_camera_names(cfg.student_target_camera_names)),
+        "teacher_camera_names": list(teacher_camera_names),
+        "student_target_camera_names": list(student_target_camera_names),
+        "active_student_camera_names": list(active_student_camera_names),
         "adapter_hidden_scale": cfg.adapter_hidden_scale,
         "config": _serialize_cfg(cfg),
     }
@@ -698,14 +755,23 @@ def _compute_feature_distillation_loss(
 @draccus.wrap()
 def distill(cfg: DistillationConfig) -> None:
     teacher_camera_names = resolve_camera_names(cfg.teacher_camera_names)
-    student_target_camera_names = resolve_camera_names(cfg.student_target_camera_names)
+    student_target_camera_names = _resolve_student_target_camera_names(
+        teacher_camera_names=teacher_camera_names,
+        student_target_camera_names=cfg.student_target_camera_names,
+    )
+    active_student_camera_names = _resolve_active_student_camera_names(
+        student_target_camera_names=student_target_camera_names,
+        distill_camera_name=cfg.distill_camera_name,
+    )
     teacher_camera_views = get_camera_views(teacher_camera_names)
-    student_camera_views = get_camera_views(student_target_camera_names)
+    active_student_camera_views = get_camera_views(active_student_camera_names)
     resume_checkpoint = Path(cfg.resume_checkpoint).expanduser() if cfg.resume_checkpoint is not None else None
 
     print(
         f"Distilling OpenVLA student `{cfg.student_path}` from teacher `{cfg.teacher_path}` "
-        f"with teacher cameras `{list(teacher_camera_names)}` and student targets `{list(student_target_camera_names)}`"
+        f"with teacher cameras `{list(teacher_camera_names)}`, "
+        f"student adapters `{list(student_target_camera_names)}`, "
+        f"and active student cameras `{list(active_student_camera_names)}`"
     )
 
     random.seed(cfg.seed)
@@ -730,7 +796,7 @@ def distill(cfg: DistillationConfig) -> None:
             raise FileNotFoundError(f"Resume checkpoint directory does not exist: {resume_checkpoint}")
         exp_id, start_step = _parse_resume_checkpoint_path(resume_checkpoint)
     else:
-        exp_id = _build_experiment_id(cfg, teacher_camera_names, student_target_camera_names)
+        exp_id = _build_experiment_id(cfg, teacher_camera_names, active_student_camera_names)
         start_step = 0
 
     run_dir = cfg.run_root_dir / exp_id
@@ -806,6 +872,7 @@ def distill(cfg: DistillationConfig) -> None:
     student_model = DistillationStudentModel(
         vla=student_vla,
         student_camera_names=student_target_camera_names,
+        active_student_camera_names=active_student_camera_names,
         adapter_hidden_scale=cfg.adapter_hidden_scale,
     )
     if resume_checkpoint is not None:
@@ -846,7 +913,7 @@ def distill(cfg: DistillationConfig) -> None:
         benchmark_name=cfg.dataset_name,
         batch_transform=batch_transform,
         teacher_camera_views=teacher_camera_views,
-        student_camera_views=student_camera_views,
+        student_camera_views=active_student_camera_views,
         train=True,
         image_aug=cfg.image_aug,
         shuffle_buffer_size=cfg.shuffle_buffer_size,
@@ -880,17 +947,17 @@ def distill(cfg: DistillationConfig) -> None:
     recent_l1_losses = deque(maxlen=cfg.grad_accumulation_steps)
     recent_view_action_losses = {
         camera_name: deque(maxlen=cfg.grad_accumulation_steps)
-        for camera_name in student_target_camera_names
+        for camera_name in active_student_camera_names
     }
     recent_view_patch_losses = {
         camera_name: deque(maxlen=cfg.grad_accumulation_steps)
-        for camera_name in student_target_camera_names
+        for camera_name in active_student_camera_names
     }
     recent_view_projector_losses = {
         camera_name: deque(maxlen=cfg.grad_accumulation_steps)
-        for camera_name in student_target_camera_names
+        for camera_name in active_student_camera_names
     }
-    cumulative_view_counts = {camera_name: 0 for camera_name in student_target_camera_names}
+    cumulative_view_counts = {camera_name: 0 for camera_name in active_student_camera_names}
 
     teacher_uses_token_level_loss = len(teacher_camera_names) == 1
 
@@ -907,7 +974,7 @@ def distill(cfg: DistillationConfig) -> None:
             attention_mask = batch["attention_mask"].to(student_device)
             labels = batch["labels"].to(student_device)
             student_view_indices = batch["student_view_indices"].to(student_device)
-            for view_index, camera_name in enumerate(student_target_camera_names):
+            for view_index, camera_name in enumerate(active_student_camera_names):
                 cumulative_view_counts[camera_name] += int((batch["student_view_indices"] == view_index).sum().item())
 
             with torch.no_grad():
@@ -978,7 +1045,7 @@ def distill(cfg: DistillationConfig) -> None:
             recent_projector_losses.append(projector_distill_loss.item())
             recent_action_accuracies.append(action_accuracy.item())
             recent_l1_losses.append(action_l1_loss.item())
-            for view_index, camera_name in enumerate(student_target_camera_names):
+            for view_index, camera_name in enumerate(active_student_camera_names):
                 view_mask = student_view_indices == view_index
                 if not torch.any(view_mask):
                     continue
@@ -1038,7 +1105,7 @@ def distill(cfg: DistillationConfig) -> None:
                         wandb_payload["learning_rate"] = float(optimizer.param_groups[0]["lr"])
 
                     total_view_samples = sum(cumulative_view_counts.values())
-                    for camera_name in student_target_camera_names:
+                    for camera_name in active_student_camera_names:
                         wandb_payload[f"student_view_count/{camera_name}"] = cumulative_view_counts[camera_name]
                         if total_view_samples > 0:
                             wandb_payload[f"student_view_ratio/{camera_name}"] = (
@@ -1070,6 +1137,9 @@ def distill(cfg: DistillationConfig) -> None:
                             processor=processor,
                             dataset_statistics=distillation_dataset.dataset_statistics,
                             student_model=student_core,
+                            teacher_camera_names=teacher_camera_names,
+                            student_target_camera_names=student_target_camera_names,
+                            active_student_camera_names=active_student_camera_names,
                         )
 
                     if use_ddp:
