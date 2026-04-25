@@ -1,12 +1,14 @@
 #!/bin/bash
-#SBATCH --job-name=eval-spatial-topview-40k
+#SBATCH --job-name=eval-spatial-topview-40k-bs32
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --gres=gpu:1
 #SBATCH --cpus-per-task=25
-#SBATCH --mem=64G
+#SBATCH --mem=48G
 #SBATCH --time=2-00:00:00
-#SBATCH --output=/home/liutong/Projects/openvla-multiview/logs/%x-%j.log
+#SBATCH --qos=high_priority
+#SBATCH --exclude=gpu03
+#SBATCH --output=/home/liutong/Projects/openvla-multiview/logs/eval/spatial/%x-%j.log
 
 set -eo pipefail
 
@@ -21,7 +23,18 @@ export TF_ENABLE_ONEDNN_OPTS=0
 cd /home/liutong/Projects/openvla-multiview
 
 python experiments/robot/libero/run_libero_eval.py \
-    --pretrained_checkpoint "/opt/liutong/openvla-runs/topview/openvla-7b+libero_spatial+cam-topview+b8+lr-0.0005+seed-7+lora-r32+dropout-0.0--image_aug--40000_chkpt" \
+    --model_family openvla \
+    --pretrained_checkpoint "/opt/liutong/openvla-runs/singleview/spatial/topview/openvla-7b+libero_spatial+cam-topview+b16+lr-0.0005+seed-7+lora-r32+dropout-0.0+sched-linear-warmup+cosine-decay+warmup-0.03--image_aug--40000_chkpt" \
+    --load_in_8bit False \
+    --load_in_4bit False \
+    --center_crop True \
+    --task_suite_name libero_spatial \
     --camera_names "[topview]" \
-    --local_log_dir "/opt/liutong/multiview_test/topview_40k" \
-    --rollout_root_dir "/opt/liutong/multiview_test/topview_40k/videos"
+    --num_steps_wait 10 \
+    --num_trials_per_task 50 \
+    --local_log_dir "/opt/liutong/multiview_test/singleview/spatial/topview/40k" \
+    --rollout_root_dir "/opt/liutong/multiview_test/singleview/spatial/topview/40k/videos" \
+    --use_wandb False \
+    --wandb_project YOUR_WANDB_PROJECT \
+    --wandb_entity YOUR_WANDB_ENTITY \
+    --seed 7
