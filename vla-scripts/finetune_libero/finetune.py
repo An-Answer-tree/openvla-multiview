@@ -127,6 +127,54 @@ def _get_learning_rate(
     return float(optimizer.param_groups[0]["lr"])
 
 
+def _get_checkpoint_dir(cfg: FinetuneConfig, run_dir: Path, step: int) -> Path:
+    """Returns the destination directory for one exported checkpoint."""
+    if cfg.save_latest_checkpoint_only:
+        return run_dir
+    return Path(f"{run_dir}--{step}_chkpt")
+
+
+def _save_checkpoint_artifacts(
+    cfg: FinetuneConfig,
+    processor: PrismaticProcessor,
+    vla_module: torch.nn.Module,
+    run_dir: Path,
+    adapter_dir: Path,
+) -> None:
+    """Saves the processor and model weights needed for checkpoint export."""
+    save_dir = adapter_dir if cfg.use_lora else run_dir
+    processor.save_pretrained(run_dir)
+    vla_module.save_pretrained(save_dir)
+
+
+def _merge_lora_checkpoint_on_cpu(
+    cfg: FinetuneConfig,
+    step: int,
+    run_dir: Path,
+    adapter_dir: Path,
+    processor: PrismaticProcessor,
+    dataset_statistics: object,
+) -> Path:
+    """Merges LoRA weights on CPU and saves one inference checkpoint."""
+    checkpoint_dir = _get_checkpoint_dir(cfg, run_dir, step)
+    if not cfg.save_latest_checkpoint_only:
+        checkpoint_dir.mkdir(parents=True, exist_ok=True)
+        save_dataset_statistics(dataset_statistics, checkpoint_dir)
+        processor.save_pretrained(checkpoint_dir)
+
+    base_vla = AutoModelForVision2Seq.from_pretrained(
+        cfg.vla_path,
+        torch_dtype=torch.bfloat16,
+        low_cpu_mem_usage=True,
+    )
+    merged_vla = PeftModel.from_pretrained(base_vla, adapter_dir).merge_and_unload()
+    merged_vla.save_pretrained(checkpoint_dir)
+    del merged_vla
+    del base_vla
+
+    return checkpoint_dir
+
+
 @draccus.wrap()
 def finetune(cfg: FinetuneConfig) -> None:
     camera_names = resolve_camera_names(cfg.camera_names)
@@ -323,32 +371,21 @@ def finetune(cfg: FinetuneConfig) -> None:
                 if completed_steps > 0 and completed_steps % cfg.save_steps == 0:
                     if distributed_state.is_main_process:
                         print(f"Saving Model Checkpoint for Step {completed_steps}")
-                        save_dir = adapter_dir if cfg.use_lora else run_dir
-                        processor.save_pretrained(run_dir)
-                        vla_module.save_pretrained(save_dir)
+                        _save_checkpoint_artifacts(cfg, processor, vla_module, run_dir, adapter_dir)
 
                     if use_ddp:
                         dist.barrier()
 
-                    if cfg.use_lora:
-                        base_vla = AutoModelForVision2Seq.from_pretrained(
-                            cfg.vla_path,
-                            torch_dtype=torch.bfloat16,
-                            low_cpu_mem_usage=True,
+                    if cfg.use_lora and distributed_state.is_main_process:
+                        checkpoint_dir = _merge_lora_checkpoint_on_cpu(
+                            cfg,
+                            completed_steps,
+                            run_dir,
+                            adapter_dir,
+                            processor,
+                            vla_dataset.dataset_statistics,
                         )
-                        merged_vla = PeftModel.from_pretrained(base_vla, adapter_dir)
-                        merged_vla = merged_vla.merge_and_unload()
-                        if distributed_state.is_main_process:
-                            if cfg.save_latest_checkpoint_only:
-                                merged_vla.save_pretrained(run_dir)
-                                print(f"Saved Model Checkpoint for Step {completed_steps} at: {run_dir}")
-                            else:
-                                checkpoint_dir = Path(str(run_dir) + f"--{completed_steps}_chkpt")
-                                os.makedirs(checkpoint_dir, exist_ok=True)
-                                save_dataset_statistics(vla_dataset.dataset_statistics, checkpoint_dir)
-                                processor.save_pretrained(checkpoint_dir)
-                                merged_vla.save_pretrained(checkpoint_dir)
-                                print(f"Saved Model Checkpoint for Step {completed_steps} at: {checkpoint_dir}")
+                        print(f"Saved Model Checkpoint for Step {completed_steps} at: {checkpoint_dir}")
 
                     if use_ddp:
                         dist.barrier()

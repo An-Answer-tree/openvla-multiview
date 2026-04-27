@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=distill-agentview-action-patch-projector-40k
+#SBATCH --job-name=distill-spatial-agent40k-allview240k-action-patch-projector
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --gres=gpu:4
@@ -7,7 +7,7 @@
 #SBATCH --mem=96G
 #SBATCH --time=10-00:00:00
 #SBATCH --qos=high_priority
-#SBATCH --output=/home/liutong/Projects/openvla-multiview/logs/distillation_log/%x-%j.log
+#SBATCH --output=/home/liutong/Projects/openvla-multiview/logs/distillation_log/spatial/agentview_teacher_40k/allview-240k/action_patch_projector/%x-%j.log
 
 set -eo pipefail
 
@@ -20,14 +20,9 @@ export HF_HUB_OFFLINE=1
 export PYTHONUNBUFFERED=1
 export PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True"
 
-if [[ ! -d "/opt/liutong/openvla-runs/singleview/spatial/agentview/openvla-7b+libero_spatial+cam-agentview+b16+lr-0.0005+seed-7+lora-r32+dropout-0.0+sched-linear-warmup+cosine-decay+warmup-0.03--image_aug--40000_chkpt" ]]; then
-  echo "Teacher checkpoint not found: /opt/liutong/openvla-runs/singleview/spatial/agentview/openvla-7b+libero_spatial+cam-agentview+b16+lr-0.0005+seed-7+lora-r32+dropout-0.0+sched-linear-warmup+cosine-decay+warmup-0.03--image_aug--40000_chkpt" >&2
-  exit 1
-fi
-
 mkdir -p \
-  "/opt/liutong/distill_ckpt/spatial/action_patch_projector/agentview_teacher/40k" \
-  "/opt/liutong/distill_tmp/spatial/action_patch_projector/agentview_teacher/40k"
+  "/opt/liutong/distill_ckpt/spatial/agentview_teacher_40k/allview_240k" \
+  "/opt/liutong/distill_tmp/spatial/agentview_teacher_40k/allview_240k"
 cd /home/liutong/Projects/openvla-multiview
 
 torchrun \
@@ -43,13 +38,13 @@ torchrun \
   --teacher_camera_names "[agentview]" \
   --student_target_camera_names "[topview,leftview,rightview,backview,leftbackview,rightbackview]" \
   --distill_camera_name "null" \
-  --run_root_dir "/opt/liutong/distill_ckpt/spatial/action_patch_projector/agentview_teacher/40k" \
-  --adapter_tmp_dir "/opt/liutong/distill_tmp/spatial/action_patch_projector/agentview_teacher/40k" \
+  --run_root_dir "/opt/liutong/distill_ckpt/spatial/agentview_teacher_40k/allview_240k" \
+  --adapter_tmp_dir "/opt/liutong/distill_tmp/spatial/agentview_teacher_40k/allview_240k" \
   --batch_size "2" \
-  --max_steps "200000" \
+  --max_steps "240000" \
   --save_steps "5000" \
   --learning_rate "3e-4" \
-  --grad_accumulation_steps "4" \
+  --grad_accumulation_steps "8" \
   --image_aug "True" \
   --shuffle_buffer_size "100000" \
   --seed "7" \
@@ -75,5 +70,4 @@ torchrun \
   --student_gpu_ids "[0,2]" \
   --teacher_gpu_ids "[1,3]" \
   --wandb_project "distillation-spatial" \
-  --wandb_entity "szliutong-wuhan-university" \
-  --run_id_note "agentview-teacher-action-patch-projector-40k"
+  --wandb_entity "szliutong-wuhan-university"

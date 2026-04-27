@@ -59,7 +59,7 @@ torchrun \
   --warmup_ratio "0.03" \
   --min_lr_ratio "0.1" \
   --max_grad_norm "1.0" \
-  --grad_accumulation_steps "4" \
+  --grad_accumulation_steps "8" \
   --image_aug "True" \
   --shuffle_buffer_size "100000" \
   --seed "7" \
