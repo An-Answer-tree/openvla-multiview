@@ -6,7 +6,9 @@
 #SBATCH --cpus-per-task=25
 #SBATCH --mem=64G
 #SBATCH --time=2-00:00:00
-#SBATCH --output=/home/liutong/Projects/openvla-multiview/logs/%x-%j.log
+#SBATCH --qos=high_priority
+#SBATCH --exclude=gpu03
+#SBATCH --output=/home/liutong/Projects/openvla-multiview/logs/eval/spatial/%x-%j.log
 
 set -eo pipefail
 
@@ -21,7 +23,7 @@ export TF_ENABLE_ONEDNN_OPTS=0
 cd /home/liutong/Projects/openvla-multiview
 
 python experiments/robot/libero/run_libero_eval.py \
-    --pretrained_checkpoint "/opt/liutong/openvla-runs/7_views/openvla-7b+libero_spatial+cam-agentview+topview+leftview+rightview+backview+leftbackview+rightbackview+b16+lr-0.0005+seed-7+lora-r32+dropout-0.0--image_aug--40000_chkpt" \
+    --pretrained_checkpoint "/opt/liutong/openvla-runs/multiview/spatial/7views/openvla-7b+libero_spatial+cam-agentview+topview+leftview+rightview+backview+leftbackview+rightbackview+b16+lr-0.0005+seed-7+lora-r32+dropout-0.0+sched-linear-warmup+cosine-decay+warmup-0.03--image_aug--40000_chkpt" \
     --camera_names "[agentview,topview,leftview,rightview,backview,leftbackview,rightbackview]" \
-    --local_log_dir "/opt/liutong/multiview_test/7views_40k" \
-    --rollout_root_dir "/opt/liutong/multiview_test/7views_40k/videos"
+    --local_log_dir "/opt/liutong/multiview_test/multiview/spatial/7views/40k" \
+    --rollout_root_dir "/opt/liutong/multiview_test/multiview/spatial/7views/40k/videos"

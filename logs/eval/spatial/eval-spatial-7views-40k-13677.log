@@ -1,0 +1,63 @@
+2026-05-04 10:53:01.640084: E external/local_xla/xla/stream_executor/cuda/cuda_dnn.cc:9261] Unable to register cuDNN factory: Attempting to register factory for plugin cuDNN when one has already been registered
+2026-05-04 10:53:01.640157: E external/local_xla/xla/stream_executor/cuda/cuda_fft.cc:607] Unable to register cuFFT factory: Attempting to register factory for plugin cuFFT when one has already been registered
+2026-05-04 10:53:01.641487: E external/local_xla/xla/stream_executor/cuda/cuda_blas.cc:1515] Unable to register cuBLAS factory: Attempting to register factory for plugin cuBLAS when one has already been registered
+2026-05-04 10:53:01.648246: I tensorflow/core/platform/cpu_feature_guard.cc:182] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 AVX512F AVX512_VNNI AVX512_BF16 AVX_VNNI AMX_TILE AMX_INT8 AMX_BF16 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2026-05-04 10:53:02.795048: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
+[robosuite WARNING] No private macro file found! (__init__.py:7)
+[robosuite WARNING] It is recommended to use a private macro file (__init__.py:8)
+[robosuite WARNING] To setup, run: python /home/liutong/Projects/libero-multiview-gen/third_party/robosuite/robosuite/scripts/setup_macros.py (__init__.py:9)
+Gym has been unmaintained since 2022 and does not support NumPy 2.0 amongst other critical functionality.
+Please upgrade to Gymnasium, the maintained drop-in replacement of Gym, or contact the authors of your software and request that they upgrade.
+Users of this version of Gym should be able to simply replace 'import gym' with 'import gymnasium as gym' in the vast majority of cases.
+See the migration guide at https://gymnasium.farama.org/introduction/migration_guide/ for additional information.
+/home/liutong/miniconda3/envs/openvla/lib/python3.10/site-packages/torch/jit/_script.py:1488: DeprecationWarning: `torch.jit.script` is deprecated. Please switch to `torch.compile` or `torch.export`.
+  warnings.warn(
+/home/liutong/miniconda3/envs/openvla/lib/python3.10/site-packages/torch/jit/_script.py:1640: DeprecationWarning: `torch.jit.interface` is deprecated. Please use `torch.compile` instead.
+  warnings.warn(
+2026-05-04 10:53:08.275565: W tensorflow/core/common_runtime/gpu/gpu_device.cc:2256] Cannot dlopen some GPU libraries. Please make sure the missing libraries mentioned above are installed properly if you would like to use GPU. Follow the guide at https://www.tensorflow.org/install/gpu for how to download and setup the required libraries for your platform.
+Skipping registering GPU devices...
+[*] Instantiating Pretrained VLA model
+[*] Loading in BF16 with Flash-Attention Enabled
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:00<00:01,  2.87it/s]Loading checkpoint shards:  50%|█████     | 2/4 [00:00<00:00,  3.45it/s]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:00<00:00,  3.67it/s]Loading checkpoint shards: 100%|██████████| 4/4 [00:01<00:00,  3.68it/s]Loading checkpoint shards: 100%|██████████| 4/4 [00:01<00:00,  3.57it/s]
+Loaded model: <class 'prismatic.extern.hf.modeling_prismatic.OpenVLAForActionPrediction'>
+Logging to local log file: /opt/liutong/multiview_test/multiview/spatial/7views/40k/EVAL-libero_spatial-openvla-cam-agentview+topview+leftview+rightview+backview+leftbackview+rightbackview-2026_05_04-10_53_20.txt
+Rollout videos will be saved under: /opt/liutong/multiview_test/multiview/spatial/7views/40k/videos
+Evaluation cameras: ['agentview', 'topview', 'leftview', 'rightview', 'backview', 'leftbackview', 'rightbackview']; rollout view: `agentview`.
+[info] using task orders [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+Task suite: libero_spatial
+  0%|          | 0/10 [00:00<?, ?it/s]
+  0%|          | 0/50 [00:00<?, ?it/s][A
+  2%|▏         | 1/50 [00:37<30:23, 37.21s/it][A
+  4%|▍         | 2/50 [02:05<53:50, 67.29s/it][A
+  6%|▌         | 3/50 [02:43<42:10, 53.84s/it][A
+  8%|▊         | 4/50 [03:16<35:05, 45.78s/it][A
+ 10%|█         | 5/50 [03:48<30:30, 40.67s/it][A
+ 12%|█▏        | 6/50 [04:20<27:46, 37.87s/it][A
+ 14%|█▍        | 7/50 [04:51<25:21, 35.39s/it][A
+ 16%|█▌        | 8/50 [06:20<36:43, 52.48s/it][A
+ 18%|█▊        | 9/50 [06:55<32:10, 47.08s/it][A
+ 20%|██        | 10/50 [07:26<28:05, 42.14s/it][A
+ 22%|██▏       | 11/50 [08:01<26:00, 40.02s/it][A
+ 24%|██▍       | 12/50 [08:33<23:40, 37.37s/it][A
+ 26%|██▌       | 13/50 [09:08<22:46, 36.94s/it][A
+ 28%|██▊       | 14/50 [10:47<33:20, 55.57s/it][A
+ 30%|███       | 15/50 [12:17<38:25, 65.86s/it][A
+ 32%|███▏      | 16/50 [12:49<31:34, 55.72s/it][A
+ 34%|███▍      | 17/50 [13:26<27:36, 50.19s/it][A
+ 36%|███▌      | 18/50 [14:00<24:10, 45.32s/it][A
+ 38%|███▊      | 19/50 [15:30<30:16, 58.61s/it][A
+ 40%|████      | 20/50 [16:10<26:33, 53.13s/it][A
+ 42%|████▏     | 21/50 [16:47<23:17, 48.19s/it][A
+ 44%|████▍     | 22/50 [17:17<19:56, 42.72s/it][A
+ 46%|████▌     | 23/50 [17:53<18:18, 40.68s/it][A
+ 48%|████▊     | 24/50 [18:22<16:11, 37.36s/it][A
+ 50%|█████     | 25/50 [18:54<14:48, 35.53s/it][A
+ 52%|█████▏    | 26/50 [19:25<13:43, 34.31s/it][A
+ 54%|█████▍    | 27/50 [20:05<13:48, 36.04s/it][A
+ 56%|█████▌    | 28/50 [21:35<19:08, 52.18s/it][A
+ 58%|█████▊    | 29/50 [22:05<15:57, 45.59s/it][A
+ 60%|██████    | 30/50 [22:41<14:09, 42.50s/it][A
+ 62%|██████▏   | 31/50 [23:16<12:49, 40.49s/it][A
+ 64%|██████▍   | 32/50 [23:52<11:40, 38.90s/it][A
+ 66%|██████▌   | 33/50 [24:42<12:01, 42.45s/it][A

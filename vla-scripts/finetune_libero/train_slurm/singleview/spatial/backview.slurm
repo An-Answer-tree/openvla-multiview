@@ -34,7 +34,7 @@ torchrun \
   --run_root_dir /opt/liutong/openvla-runs/singleview/spatial/backview \
   --adapter_tmp_dir /opt/liutong/openvla-adapter-tmp/singleview/spatial/backview \
   --batch_size 4 \
-  --max_steps 100000 \
+  --max_steps 60000 \
   --save_steps 5000 \
   --learning_rate 5e-4 \
   --use_lr_scheduler True \
